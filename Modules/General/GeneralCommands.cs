@@ -1,6 +1,8 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Zarnogh.Configuration;
 using Zarnogh.Services;
 
@@ -58,6 +60,54 @@ namespace Zarnogh.Modules.General
                     if ( item.Id == threadId ) await fakeContext.RespondAsync( string.Join( " ", rest ) );
                 }
             }
+        }
+
+        [Command( "Unban" )]
+        [Description( "Unbans a user." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.BanMembers )]
+        public async Task Unban( CommandContext ctx, ulong userId )
+        {
+            await ctx.TriggerTypingAsync();
+
+            DiscordBan ban;
+
+            try
+            {
+                ban = await ctx.Guild.GetBanAsync( userId );
+            }
+            catch ( NotFoundException )
+            {
+                var member = await ctx.Guild.GetMemberAsync( userId );
+                await ctx.RespondAsync( $"Member {member.Mention} is not banned, aborting..." );
+                return;
+            }
+
+            await ctx.Guild.UnbanMemberAsync( userId );
+            await ctx.RespondAsync( $"Unbanned user: {ban.User.Mention}." );
+        }
+
+        [Command( "SetStatus" )]
+        [Description( "Sets the bot's status." )]
+        [RequireOwner]
+        public async Task SetActivity( CommandContext ctx, int type, [RemainingText] string status )
+        {
+            await ctx.TriggerTypingAsync();
+
+            Logger.LogWarning( "A new activity status has been set for this bot instance." );
+
+            DiscordActivity activity = new DiscordActivity();
+            DiscordClient discord = ctx.Client;
+            activity.Name = status;
+            activity.ActivityType = ActivityType.Watching;
+
+            await ctx.RespondAsync( $"New activity status set to: \"Watching {status}\"." );
+
+            // Offline = 0,
+            // Online = 1,
+            // Idle = 2,
+            // DoNotDisturb = 4,
+            // Invisible = 5
+            await discord.UpdateStatusAsync( activity, (UserStatus)type, DateTimeOffset.UtcNow );
         }
 
         [Command( "UpTime" )]
