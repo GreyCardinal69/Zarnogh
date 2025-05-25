@@ -60,7 +60,7 @@ namespace Zarnogh
             _guildConfigManager = new GuildConfigManager( _botConfig, _botState );
             _services.AddService( _guildConfigManager );
 
-            _moduleManager = new ModuleManager( _services, _botConfig, _guildConfigManager );
+            _moduleManager = new ModuleManager( _services, _botConfig, _guildConfigManager, _botState );
             _services.AddService( _moduleManager );
 
             await _moduleManager.DiscoverAndLoadModulesAsync();

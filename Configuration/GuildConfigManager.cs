@@ -11,10 +11,10 @@ namespace Zarnogh.Configuration
         private readonly BotConfig _globalConfig;
         private readonly ZarnoghState _globalState;
 
-        public GuildConfigManager( BotConfig globalConfig, ZarnoghState state )
+        public GuildConfigManager( BotConfig globalConfig, ZarnoghState globalState )
         {
-            _globalConfig = globalConfig;
-            _globalState = state;
+            _globalConfig = globalConfig ?? throw new ArgumentNullException( $"Global Config ({nameof( globalConfig )}) is null in GuildConfigManager constructor" );
+            _globalState = globalState ?? throw new ArgumentNullException( $"Global State ({nameof( globalState )}) is null in GuildConfigManager constructor" );
             Directory.CreateDirectory( _configDirectory );
         }
 
@@ -40,7 +40,7 @@ namespace Zarnogh.Configuration
                         .Append( "Loaded guild config file for guild: [" )
                         .AppendHighlight( $"{guildConfig.GuildName}", ConsoleColor.Cyan )
                         .Append( "," )
-                        .AppendHighlight(  $"{guildId}", ConsoleColor.DarkGreen )
+                        .AppendHighlight( $"{guildId}", ConsoleColor.DarkGreen )
                         .Append( "]." );
 
                     Logger.LogColorableBuilderMessage( messageBuilder );
@@ -65,7 +65,7 @@ namespace Zarnogh.Configuration
                         .Append( "Created a new guild config file for guild: [" )
                         .AppendHighlight( $"{newConfig.GuildName}", ConsoleColor.Cyan )
                         .Append( "," )
-                        .AppendHighlight(  $"{guildId}", ConsoleColor.DarkGreen )
+                        .AppendHighlight( $"{guildId}", ConsoleColor.DarkGreen )
                         .Append( "]." );
 
             Logger.LogColorableBuilderMessage( messageBuilder );
