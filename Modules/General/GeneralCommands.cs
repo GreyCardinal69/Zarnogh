@@ -39,7 +39,7 @@ namespace Zarnogh.Modules.General
         public async Task BotTalk( CommandContext ctx, ulong guildId, ulong channelId, ulong threadId, bool thread, params string[] rest )
         {
             await ctx.TriggerTypingAsync();
-            CommandContext fakeContext = _botState.CreateNewCommandContext( guildId, channelId );
+            CommandContext fakeContext = await _botState.CreateNewCommandContext( guildId, channelId );
 
             if ( !thread )
             {

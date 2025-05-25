@@ -53,7 +53,7 @@ namespace Zarnogh.Configuration
             }
 
             // config doesn't exist, create manually from DHsarp context.
-            var ctx = _globalState.CreateNewCommandContext( guildId );
+            var ctx = await _globalState.CreateNewCommandContext( guildId );
             GuildConfig newConfig = new GuildConfig()
             {
                 EnabledModules = new List<string>(),
