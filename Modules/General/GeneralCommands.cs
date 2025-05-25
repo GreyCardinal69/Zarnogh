@@ -3,6 +3,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Zarnogh.Configuration;
 using Zarnogh.Services;
 
@@ -62,6 +64,86 @@ namespace Zarnogh.Modules.General
             }
         }
 
+        [Command( "Kick" )]
+        [Description( "Kicks a user from the server, with an optional reason." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.KickMembers )]
+        public async Task Kick( CommandContext ctx, ulong userId, string reason = "" )
+        {
+            await ctx.TriggerTypingAsync();
+            DiscordMember member;
+
+            try
+            {
+                member = await ctx.Guild.GetMemberAsync( userId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid user ID, aborting..." );
+                return;
+            }
+
+            await ctx.RespondAsync( $"Are you sure you want to kick {member.Mention}? Respond with yes to confirm." );
+
+            InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+            InteractivityResult<DiscordMessage> msg = await interactivity.WaitForMessageAsync
+            (
+                xm => string.Equals( xm.Content, "yes",
+                StringComparison.InvariantCultureIgnoreCase ),
+                TimeSpan.FromSeconds( 20 )
+            );
+
+            if ( !msg.TimedOut && msg.Result.Author.Id == ctx.User.Id )
+            {
+                await member.RemoveAsync();
+                await ctx.RespondAsync( $"{member.Mention} has been kicked from the server. Reason: {reason ?? "No reason provided"}." );
+            }
+            else
+            {
+                await ctx.RespondAsync( "Confirmation time ran out, aborting." );
+            }
+        }
+
+        [Command( "Ban" )]
+        [Description( "Bans a specified user from the server, with an option to delete last X messages." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.BanMembers )]
+        public async Task Ban( CommandContext ctx, ulong userId, int deleteAmount = 0, string reason = "" )
+        {
+            await ctx.TriggerTypingAsync();
+            DiscordMember member;
+
+            try
+            {
+                member = await ctx.Guild.GetMemberAsync( userId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid user ID, aborting..." );
+                return;
+            }
+
+            await ctx.RespondAsync( $"Are you sure you want to ban {member.Mention}? Respond with yes to confirm." );
+
+            InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+            InteractivityResult<DiscordMessage> msg = await interactivity.WaitForMessageAsync
+            (
+                xm => string.Equals( xm.Content, "yes",
+                StringComparison.InvariantCultureIgnoreCase ),
+                TimeSpan.FromSeconds( 20 )
+            );
+
+            if ( !msg.TimedOut && msg.Result.Author.Id == ctx.User.Id )
+            {
+                member = await ctx.Guild.GetMemberAsync( userId );
+
+                await ctx.Guild.BanMemberAsync( userId, deleteAmount, reason );
+                await ctx.RespondAsync( $"Banned {member.Mention}, deleted last {deleteAmount} messages with \"{reason}\" as reason for the ban." );
+            }
+            else
+            {
+                await ctx.RespondAsync( "Confirmation time ran out, aborting." );
+            }
+        }
+
         [Command( "Unban" )]
         [Description( "Unbans a user." )]
         [RequireUserPermissions( DSharpPlus.Permissions.BanMembers )]
@@ -111,7 +193,7 @@ namespace Zarnogh.Modules.General
         }
 
         [Command( "UpTime" )]
-        [Description( "Responds with the total up time of the current bot instance in days, hours and minutes." )]
+        [Description( "Displays the bot's current operational uptime." )]
         public async Task UpTime( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
@@ -153,7 +235,7 @@ namespace Zarnogh.Modules.General
             }
             catch ( BadRequestException )
             {
-                await ctx.RespondAsync( $"Failed to erase messages. The messages are older than 14 days, use \"{_botConfig.Prefix}EraseAggressive\" command instead." );
+                await ctx.RespondAsync( $"Could not bulk delete messages older than 14 days. To delete these messages use \"{_botConfig.Prefix}EraseAggressive\" command." );
             }
         }
     }

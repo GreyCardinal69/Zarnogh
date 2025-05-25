@@ -2,6 +2,9 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using Zarnogh.Configuration;
 using Zarnogh.Modules;
@@ -38,6 +41,12 @@ namespace Zarnogh
 
             Client = new DiscordClient( discordConfig );
             _services.AddService( Client );
+
+            Client.UseInteractivity( new InteractivityConfiguration
+            {
+                PaginationBehaviour = PaginationBehaviour.Ignore,
+                Timeout = TimeSpan.FromMinutes( 2 ),
+            } );
 
             var commandsNextConfig = new CommandsNextConfiguration
             {
