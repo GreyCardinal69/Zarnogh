@@ -151,9 +151,9 @@ namespace Zarnogh.Modules.General
                     await ctx.Channel.DeleteMessageAsync( response );
                 }
             }
-            catch ( Exception )
+            catch ( BadRequestException )
             {
-                await ctx.RespondAsync( $"Failed to erase {count} messages, the messages might be too old." );
+                await ctx.RespondAsync( $"Failed to erase messages. The messages are older than 14 days, use \"{_botConfig.Prefix}EraseAggressive\" command instead." );
             }
         }
     }
