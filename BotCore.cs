@@ -53,7 +53,7 @@ namespace Zarnogh
             {
                 Client = Client,
                 CommandsNext = CommandsNext,
-                StartUpTime = DateTime.UtcNow,
+                StartUpTime = DateTime.Now,
             };
             _services.AddService( _botState );
 
@@ -88,7 +88,7 @@ namespace Zarnogh
         private Task OnCommandExecuted( CommandsNextExtension sender, CommandExecutionEventArgs e )
         {
             var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
-                .Append($"The user \"{e.Context.User.Username}\" successfully executed command: [")
+                .Append($"The user \"{e.Context.User.Username}\" successfully executed the command: [")
                 .AppendHighlight( $"{e.Command.QualifiedName}", ConsoleColor.Cyan )
                 .Append("] in ")
                 .AppendHighlight($"#{e.Context.Channel.Name}", ConsoleColor.DarkGreen)

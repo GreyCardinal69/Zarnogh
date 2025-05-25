@@ -2,11 +2,12 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Zarnogh.Configuration;
+using Zarnogh.Services;
 
 namespace Zarnogh.Modules.General
 {
     // This is a global command module, always enabled for all servers
-    // Checks for whether the module is enabled for the server are omitted.
+    // Checks for whether the module is enabled for a server are omitted.
     public class GeneralCommands : BaseCommandModule
     {
         private readonly BotConfig _botConfig;
@@ -28,6 +29,82 @@ namespace Zarnogh.Modules.General
         {
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync( $"Ping: {ctx.Client.Ping}ms." );
+        }
+
+        [Command( "BotTalk" )]
+        [Description( "Command for talking as the bot." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task BotTalk( CommandContext ctx, ulong guildId, ulong channelId, ulong threadId, bool thread, params string[] rest )
+        {
+            await ctx.TriggerTypingAsync();
+            CommandContext fakeContext = _botState.CreateNewCommandContext( guildId, channelId );
+
+            if ( !thread )
+            {
+                await fakeContext.RespondAsync( string.Join( " ", rest ) );
+            }
+            else
+            {
+                DiscordChannel channel = fakeContext.Guild.GetChannel( channelId );
+
+                if ( channel == null )
+                {
+                    await ctx.RespondAsync( "Invalid thread ID." );
+                    return;
+                }
+
+                foreach ( DiscordThreadChannel item in channel.Threads )
+                {
+                    if ( item.Id == threadId ) await fakeContext.RespondAsync( string.Join( " ", rest ) );
+                }
+            }
+        }
+
+        [Command( "UpTime" )]
+        [Description( "Responds with the total up time of the current bot instance in days, hours and minutes." )]
+        public async Task UpTime( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+            var uptime = DateTime.Now - _botState.StartUpTime;
+            await ctx.RespondAsync( $"Uptime: {Math.Abs( uptime.Days )} Day(s), {Math.Abs( uptime.Hours )} hour(s), {Math.Abs( uptime.Minutes )} minute(s)." );
+        }
+
+        [Command( "Erase" )]
+        [Description( "Deletes set amount of messages if possible." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageMessages )]
+        public async Task Erase( CommandContext ctx, int count )
+        {
+            await ctx.TriggerTypingAsync();
+
+            try
+            {
+                // count amount of messages + 1 message, which is '.erase ...'
+                IReadOnlyList<DiscordMessage> messages = await ctx.Channel.GetMessagesAsync( count + 1 );
+                await ctx.Channel.DeleteMessagesAsync( messages );
+                var response = await ctx.RespondAsync( $"Erased: {count} messages, executed by {ctx.User.Mention}." );
+
+                // 7 second delay so that the response can be seen for a short while.
+                await Task.Delay( 7000 );
+
+                var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
+
+                if ( guildConfig.DeleteBotResponseAfterEraseCommands )
+                {
+                    var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                        .Append( "Auto-deleted 'erase' command response in: [" )
+                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
+                        .Append( ",")
+                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
+                        .Append("] per server configuration.");
+
+                    Logger.LogColorableBuilderMessage( messageBuilder );
+                    await ctx.Channel.DeleteMessageAsync( response );
+                }
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( $"Failed to erase {count} messages, the messages might be too old." );
+            }
         }
     }
 }

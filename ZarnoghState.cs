@@ -13,8 +13,8 @@ namespace Zarnogh
         public CommandContext CreateNewCommandContext( ulong guildId, ulong channelId = 0 )
         {
             CommandsNextExtension cmds = Client.GetCommandsNext();
-            Command cmd = cmds.FindCommand( "fake", out string? customArgs );
-            customArgs = "fake";
+            Command cmd = cmds.FindCommand( "fake", out _ );
+            string customArgs = "fake";
             DiscordGuild guild = Client.GetGuildAsync( guildId ).Result;
 
             DiscordChannel channel = channelId == 0 ? guild.Channels.Values.First() : guild.GetChannel(channelId);
