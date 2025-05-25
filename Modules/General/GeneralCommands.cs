@@ -82,7 +82,7 @@ namespace Zarnogh.Modules.General
                 return;
             }
 
-            await ctx.RespondAsync( $"Are you sure you want to kick {member.Mention}? Respond with yes to confirm." );
+            await ctx.RespondAsync( $"Are you sure you want to kick {member.Mention}? Respond with \"yes\" to confirm." );
 
             InteractivityExtension interactivity = ctx.Client.GetInteractivity();
             InteractivityResult<DiscordMessage> msg = await interactivity.WaitForMessageAsync
@@ -207,6 +207,11 @@ namespace Zarnogh.Modules.General
         public async Task Erase( CommandContext ctx, int count )
         {
             await ctx.TriggerTypingAsync();
+            if ( count <= 0 )
+            {
+                await ctx.RespondAsync( "Invalid number of messages to delete, should be at least 1." );
+                return;
+            }
 
             try
             {
@@ -223,7 +228,7 @@ namespace Zarnogh.Modules.General
                 if ( guildConfig.DeleteBotResponseAfterEraseCommands )
                 {
                     var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
-                        .Append( "Auto-deleted 'erase' command response in: [" )
+                        .Append( "Auto-deleted 'Erase' command response in: [" )
                         .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
                         .Append( ",")
                         .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
@@ -236,6 +241,51 @@ namespace Zarnogh.Modules.General
             catch ( BadRequestException )
             {
                 await ctx.RespondAsync( $"Could not bulk delete messages older than 14 days. To delete these messages use \"{_botConfig.Prefix}EraseAggressive\" command." );
+            }
+        }
+
+        [Command( "EraseAggressive" )]
+        [Description( "Deletes set amount of messages if possible, can delete messages older than 2 weeeks." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageMessages )]
+        public async Task EraseAggressive( CommandContext ctx, int count )
+        {
+            await ctx.TriggerTypingAsync();
+            if ( count <= 0 )
+            {
+                await ctx.RespondAsync( "Invalid number of messages to delete, should be at least 1." );
+                return;
+            }
+
+            try
+            {
+                IReadOnlyList<DiscordMessage> messages = await ctx.Channel.GetMessagesAsync( count );
+                foreach ( DiscordMessage item in messages )
+                {
+                    await ctx.Channel.DeleteMessageAsync( item );
+                }
+                var response = await ctx.RespondAsync( $"Erased: {count} messages, executed by {ctx.User.Mention}." );
+
+                // 7 second delay so that the response can be seen for a short while.
+                await Task.Delay( 7000 );
+
+                var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
+
+                if ( guildConfig.DeleteBotResponseAfterEraseCommands )
+                {
+                    var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                        .Append( "Auto-deleted 'EraseAggressive' command response in: [" )
+                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
+                        .Append( ",")
+                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
+                        .Append("] per server configuration.");
+
+                    Logger.LogColorableBuilderMessage( messageBuilder );
+                    await ctx.Channel.DeleteMessageAsync( response );
+                }
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Failed to erase targeted messages, aborting..." );
             }
         }
     }
