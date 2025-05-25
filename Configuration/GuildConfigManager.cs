@@ -25,6 +25,8 @@ namespace Zarnogh.Configuration
                 return config;
             }
 
+            ColorableMessageBuilder messageBuilder;
+
             var filePath = Path.Combine(_configDirectory, $"{guildId}.json");
             if ( File.Exists( filePath ) )
             {
@@ -34,7 +36,7 @@ namespace Zarnogh.Configuration
                     GuildConfig guildConfig = JsonConvert.DeserializeObject<GuildConfig>( str );
                     _guildConfigurations.TryAdd( guildId, guildConfig );
 
-                    var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                    messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
                         .Append( "Loaded guild config file for guild: [" )
                         .AppendHighlight( $"{guildConfig.GuildName}", ConsoleColor.Cyan )
                         .Append( "," )
@@ -58,6 +60,16 @@ namespace Zarnogh.Configuration
                 GuildId = guildId,
                 GuildName = ctx.Guild.Name,
             };
+
+            messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                        .Append( "Created a new guild config file for guild: [" )
+                        .AppendHighlight( $"{newConfig.GuildName}", ConsoleColor.Cyan )
+                        .Append( "," )
+                        .AppendHighlight(  $"{guildId}", ConsoleColor.DarkGreen )
+                        .Append( "]." );
+
+            Logger.LogColorableBuilderMessage( messageBuilder );
+
             await File.WriteAllTextAsync( Path.Combine( _configDirectory, $"{guildId}.json" ), JsonConvert.SerializeObject( newConfig, Formatting.Indented ) );
             return newConfig;
         }
