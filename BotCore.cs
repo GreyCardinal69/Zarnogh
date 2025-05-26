@@ -110,12 +110,7 @@ namespace Zarnogh
         private async Task OnCommandErrored( CommandsNextExtension sender, CommandErrorEventArgs e )
         {
             Logger.LogError( $"{e.Context.User.Username} tried to execute '{e.Command?.QualifiedName ?? "unknown command"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message}." );
-
-            var embed = new DiscordEmbedBuilder()
-                .WithTitle("Command Error")
-                .WithDescription($"An error occurred while executing the command. Details have been logged.\n`{e.Exception.Message}`")
-                .WithColor(DiscordColor.DarkRed);
-            await e.Context.RespondAsync( embed: embed );
+            await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"`{e.Exception.Message}`\"" );
         }
 
         public async Task ShutdownAsync()

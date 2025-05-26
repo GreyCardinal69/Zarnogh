@@ -244,6 +244,120 @@ namespace Zarnogh.Modules.General
             }
         }
 
+        [Command( "EraseFromTo" )]
+        [Description( "Deletes messages within a specified range, defined by a start and end message ID (both inclusive)." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageMessages )]
+        public async Task EraseFromTo( CommandContext ctx, ulong fromId, ulong toId )
+        {
+            await ctx.TriggerTypingAsync();
+
+            DiscordMessage fromMessage;
+            DiscordMessage toMessage;
+
+            if ( fromId == toId )
+            {
+                await ctx.RespondAsync( "Identical message IDs, aborting..." );
+                return;
+            }
+
+            try
+            {
+                fromMessage = await ctx.Channel.GetMessageAsync( fromId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "`From` message not found, invalid ID." );
+                return;
+            }
+
+            try
+            {
+                toMessage = await ctx.Channel.GetMessageAsync( toId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "`To` message not found, invalid ID." );
+                return;
+            }
+
+            if ( fromMessage.Timestamp > toMessage.Timestamp )
+            {
+                (fromMessage, toMessage) = (toMessage, fromMessage);
+                 await ctx.RespondAsync("`From` message older than `To` message, wrong order, reordered.");
+            }
+
+            List<DiscordMessage> messagesToDelete = new List<DiscordMessage>() { fromMessage, toMessage };
+
+            ulong currentPivotId = toMessage.Id;
+            bool foundStartMessage = false;
+            var twoWeeks = DateTimeOffset.UtcNow.AddDays(-14);
+
+            while ( !foundStartMessage )
+            {
+                var fetchedBatch = await ctx.Channel.GetMessagesBeforeAsync(currentPivotId);
+                if ( !fetchedBatch.Any() ) break;
+
+                foreach ( var msg in fetchedBatch )
+                {
+                    if ( msg.Timestamp < fromMessage.Timestamp )
+                    {
+                        foundStartMessage = true; 
+                        break;
+                    }
+
+                    if ( msg.Timestamp >= fromMessage.Timestamp )
+                    {
+                        messagesToDelete.Add( msg );
+                    }
+
+                    if ( msg.Id == fromMessage.Id )
+                    {
+                        foundStartMessage = true;
+                        break;
+                    }
+                }
+
+                currentPivotId = fetchedBatch[fetchedBatch.Count - 1].Id;
+            }
+
+            var distinctMessages = messagesToDelete
+            .DistinctBy(m => m.Id)
+            .ToList();
+
+            if ( distinctMessages.Count == 0 )
+            {
+                await ctx.RespondAsync( "No eligible messages found within the specified range and 14-day limit, aborting..." );
+                return;
+            }
+
+            var count = distinctMessages.Count;
+
+            foreach ( var msg in distinctMessages )
+            {
+                await ctx.Channel.DeleteMessageAsync( msg );
+            }
+
+            var response = await ctx.RespondAsync( $"Erased: {count} messages, executed by {ctx.User.Mention}." );
+
+            // 7 second delay so that the response can be seen for a short while.
+            await Task.Delay( 7000 );
+
+            var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
+
+            if ( guildConfig.DeleteBotResponseAfterEraseCommands )
+            {
+                var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                        .Append( "Auto-deleted 'EraseFromTo' command response in: [" )
+                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
+                        .Append( ",")
+                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
+                        .Append("] per server configuration.");
+
+                Logger.LogColorableBuilderMessage( messageBuilder );
+                await ctx.Channel.DeleteMessageAsync( response );
+            }
+        }
+
         [Command( "EraseAggressive" )]
         [Description( "Deletes set amount of messages if possible, can delete messages older than 2 weeeks." )]
         [RequireUserPermissions( DSharpPlus.Permissions.ManageMessages )]
