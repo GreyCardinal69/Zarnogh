@@ -42,10 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Moderation\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.5.1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.1" />

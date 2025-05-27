@@ -21,6 +21,10 @@ namespace Zarnogh
         private GuildConfigManager _guildConfigManager;
         private ModuleManager _moduleManager;
         private ZarnoghState _botState;
+        private Task _tickLoopTask;
+        private CancellationTokenSource _tickLoopCts;
+
+        public event Func<BotCore, DateTimeOffset, Task> TickAsync;
 
         public async Task InitializeAsync( BotConfig config )
         {
@@ -80,6 +84,95 @@ namespace Zarnogh
             CommandsNext.CommandErrored += OnCommandErrored;
 
             await Client.ConnectAsync();
+            StartTickLoop();
+        }
+
+        private void StartTickLoop()
+        {
+            ColorableMessageBuilder msg;
+
+            if ( _botConfig.TickLoopIntervalMilliseconds <= 0 )
+            {
+                msg = new ColorableMessageBuilder( Console.ForegroundColor )
+                    .Append( "[" )
+                    .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
+                    .Append( "] Tick loop interval is zero or negative. Loop will not start." );
+                Logger.LogColorableBuilderMessage( msg );
+                return;
+            }
+
+            _tickLoopCts = new CancellationTokenSource();
+            _tickLoopTask = Task.Run( async () =>
+            {
+                msg = new ColorableMessageBuilder( Console.ForegroundColor )
+                    .Append( "[" )
+                    .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
+                    .Append( $"] Started using Task.Run with interval {_botConfig.TickLoopIntervalMilliseconds}ms at {DateTimeOffset.UtcNow}." );
+                Logger.LogColorableBuilderMessage( msg );
+
+                try
+                {
+                    while ( !_tickLoopCts.Token.IsCancellationRequested )
+                    {
+                        await Task.Delay( _botConfig.TickLoopIntervalMilliseconds, _tickLoopCts.Token );
+                        if ( !_tickLoopCts.Token.IsCancellationRequested )
+                        {
+                            await OnTickAsync( DateTimeOffset.UtcNow );
+                        }
+                    }
+                }
+                catch ( TaskCanceledException )
+                {
+                    msg = new ColorableMessageBuilder( Console.ForegroundColor )
+                    .Append( "[" )
+                    .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
+                    .Append( $"] Task.Run loop was canceled." );
+                    Logger.LogColorableBuilderMessage( msg );
+                }
+                catch ( Exception ex )
+                {
+                    Logger.LogError( $"[TickLoop] CRITICAL ERROR in Task.Run loop: {ex}" );
+                }
+
+                msg = new ColorableMessageBuilder( Console.ForegroundColor )
+                    .Append( "[" )
+                    .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
+                    .Append( $"] Task.Run loop has stopped" );
+                Logger.LogColorableBuilderMessage( msg );
+            }, _tickLoopCts.Token );
+        }
+
+        private async Task OnTickAsync( DateTimeOffset tickTime )
+        {
+            ColorableMessageBuilder msg;
+
+            msg = new ColorableMessageBuilder( Console.ForegroundColor )
+                .Append( "[" )
+                .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
+                .Append( $"] Tick at {tickTime}." );
+            Logger.LogColorableBuilderMessage( msg );
+
+            if ( TickAsync != null )
+            {
+                try
+                {
+                    foreach ( Func<BotCore, DateTimeOffset, Task> handler in TickAsync.GetInvocationList() )
+                    {
+                        try
+                        {
+                            await handler( this, tickTime );
+                        }
+                        catch ( Exception ex )
+                        {
+                            Logger.LogError( $"[TickLoop] Error in a TickAsync subscriber: {ex}" );
+                        }
+                    }
+                }
+                catch ( Exception ex )
+                {
+                    Logger.LogError( $"[TickLoop] Error invoking TickAsync event: {ex}" );
+                }
+            }
         }
 
         private Task OnClientReady( DiscordClient sender, ReadyEventArgs e )
@@ -121,6 +214,12 @@ namespace Zarnogh
                 await Client.DisconnectAsync();
                 Client.Dispose();
             }
+            if ( _tickLoopCts != null )
+            {
+                _tickLoopCts.Cancel();
+                _tickLoopCts.Dispose();
+            }
+            _tickLoopTask.Dispose();
         }
     }
 }

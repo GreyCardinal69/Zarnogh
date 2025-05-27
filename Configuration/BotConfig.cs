@@ -6,5 +6,6 @@
         public string Prefix { get; init; }
         public IReadOnlyList<string> DefaultGlobalModules { get; set; }
         public ulong OwnerId { get; init; }
+        public int TickLoopIntervalMilliseconds { get; init; }
     }
 }
