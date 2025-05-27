@@ -192,15 +192,6 @@ namespace Zarnogh.Modules.General
             await discord.UpdateStatusAsync( activity, (UserStatus)type, DateTimeOffset.UtcNow );
         }
 
-        [Command( "UpTime" )]
-        [Description( "Displays the bot's current operational uptime." )]
-        public async Task UpTime( CommandContext ctx )
-        {
-            await ctx.TriggerTypingAsync();
-            var uptime = DateTime.Now - _botState.StartUpTime;
-            await ctx.RespondAsync( $"Uptime: {Math.Abs( uptime.Days )} Day(s), {Math.Abs( uptime.Hours )} hour(s), {Math.Abs( uptime.Minutes )} minute(s)." );
-        }
-
         [Command( "Erase" )]
         [Description( "Deletes set amount of messages if possible." )]
         [RequireUserPermissions( DSharpPlus.Permissions.ManageMessages )]
