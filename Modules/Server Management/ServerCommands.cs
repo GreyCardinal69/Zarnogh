@@ -25,6 +25,7 @@ namespace Zarnogh.Modules.ServerManagement
 
         [Command( "ToggleEraseAutoDelete" )]
         [Description( "Responds with the server's configuration (profile)." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
         public async Task ToggleEraseAutoDelete( CommandContext ctx, bool yn )
         {
             await ctx.TriggerTypingAsync();
@@ -38,6 +39,7 @@ namespace Zarnogh.Modules.ServerManagement
 
         [Command( "SetNotificationsChannel" )]
         [Description( "Set's the channel for the bot's notifications." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
         public async Task SetNotificationsChannel( CommandContext ctx, ulong Id )
         {
             await ctx.TriggerTypingAsync();
@@ -62,6 +64,8 @@ namespace Zarnogh.Modules.ServerManagement
 
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
+
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageRoles )]
         public async Task Profile( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
