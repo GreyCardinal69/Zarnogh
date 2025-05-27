@@ -23,19 +23,44 @@ namespace Zarnogh.Modules.ServerManagement
             _moduleManager = moduleManager;
         }
 
-        [Command( "toggleEraseAutoDelete" )]
+        [Command( "ToggleEraseAutoDelete" )]
         [Description( "Responds with the server's configuration (profile)." )]
         public async Task ToggleEraseAutoDelete( CommandContext ctx, bool yn )
         {
+            await ctx.TriggerTypingAsync();
             var profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id);
 
             profile.DeleteBotResponseAfterEraseCommands = yn;
 
             await File.WriteAllTextAsync( Path.Combine( "GuildConfigs", $"{ctx.Guild.Id}.json" ), JsonConvert.SerializeObject( profile, Formatting.Indented ) );
-            await ctx.RespondAsync( $"`Delete bot response message after erase commands` toggle set to: `{yn}`" );
+            await ctx.RespondAsync( $"`Delete bot response message after erase commands` toggle set to: `{yn}`." );
         }
 
-        [Command( "serverProfile" )]
+        [Command( "SetNotificationsChannel" )]
+        [Description( "Set's the channel for the bot's notifications." )]
+        public async Task SetNotificationsChannel( CommandContext ctx, ulong Id )
+        {
+            await ctx.TriggerTypingAsync();
+
+            DiscordChannel channel = ctx.Guild.GetChannel( Id );
+
+            if ( channel == null )
+            {
+                await ctx.RespondAsync( "Invalid channel ID, aborting..." );
+                return;
+            }
+
+            GuildConfig profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id );
+            profile.BotNotificationsChannel = channel.Id;
+
+            var newCtx = await _botState.CreateNewCommandContext(ctx.Guild.Id, channel.Id);
+            await newCtx.RespondAsync( "<Test Notification>" );
+
+            await File.WriteAllTextAsync( Path.Combine( "GuildConfigs", $"{ctx.Guild.Id}.json" ), JsonConvert.SerializeObject( profile, Formatting.Indented ) );
+            await ctx.RespondAsync( $"Bot notifications channel set to: {channel.Mention}." );
+        }
+
+        [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
         public async Task Profile( CommandContext ctx )
         {
@@ -66,7 +91,7 @@ namespace Zarnogh.Modules.ServerManagement
             foreach ( var module in _moduleManager.LoadedModules )
             {
                 enabledModules.Append( module.NameOfModule );
-                if ( i < _moduleManager.LoadedModules.Count - 1 ) enabledModules.Append(", ");
+                if ( i < _moduleManager.LoadedModules.Count - 1 ) enabledModules.Append( ", " );
                 i++;
             }
 
