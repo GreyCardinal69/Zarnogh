@@ -27,7 +27,7 @@ namespace Zarnogh.Modules.General
             _moduleManager = moduleManager;
         }
 
-        [Command( "ping" )]
+        [Command( "Ping" )]
         [Description( "Checks the bot's responsiveness." )]
         public async Task PingCommand( CommandContext ctx )
         {
@@ -222,21 +222,7 @@ namespace Zarnogh.Modules.General
 
                 // 7 second delay so that the response can be seen for a short while.
                 await Task.Delay( 7000 );
-
-                var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
-
-                if ( guildConfig.DeleteBotResponseAfterEraseCommands )
-                {
-                    var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
-                        .Append( "Auto-deleted 'Erase' command response in: [" )
-                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
-                        .Append( ",")
-                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
-                        .Append("] per server configuration.");
-
-                    Logger.LogColorableBuilderMessage( messageBuilder );
-                    await ctx.Channel.DeleteMessageAsync( response );
-                }
+                await TryDeleteEraseResponseMessage( ctx, response, ctx.Guild.Id, "Erase" );
             }
             catch ( BadRequestException )
             {
@@ -341,21 +327,7 @@ namespace Zarnogh.Modules.General
 
             // 7 second delay so that the response can be seen for a short while.
             await Task.Delay( 7000 );
-
-            var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
-
-            if ( guildConfig.DeleteBotResponseAfterEraseCommands )
-            {
-                var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
-                        .Append( "Auto-deleted 'EraseFromTo' command response in: [" )
-                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
-                        .Append( ",")
-                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
-                        .Append("] per server configuration.");
-
-                Logger.LogColorableBuilderMessage( messageBuilder );
-                await ctx.Channel.DeleteMessageAsync( response );
-            }
+            await TryDeleteEraseResponseMessage( ctx, response, ctx.Guild.Id, "EraseFromTo" );
         }
 
         [Command( "EraseAggressive" )]
@@ -381,25 +353,29 @@ namespace Zarnogh.Modules.General
 
                 // 7 second delay so that the response can be seen for a short while.
                 await Task.Delay( 7000 );
-
-                var guildConfig = await _guildConfigManager.GetGuildConfig(ctx.Guild.Id);
-
-                if ( guildConfig.DeleteBotResponseAfterEraseCommands )
-                {
-                    var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
-                        .Append( "Auto-deleted 'EraseAggressive' command response in: [" )
-                        .AppendHighlight( $"{ctx.Guild.Name}", ConsoleColor.Cyan )
-                        .Append( ",")
-                        .AppendHighlight($"{ctx.Guild.Id}", ConsoleColor.DarkGreen)
-                        .Append("] per server configuration.");
-
-                    Logger.LogColorableBuilderMessage( messageBuilder );
-                    await ctx.Channel.DeleteMessageAsync( response );
-                }
+                await TryDeleteEraseResponseMessage( ctx, response, ctx.Guild.Id, "EraseAggressive" );
             }
             catch ( Exception )
             {
                 await ctx.RespondAsync( "Failed to erase targeted messages, aborting..." );
+            }
+        }
+
+        private async Task TryDeleteEraseResponseMessage( CommandContext ctx, DiscordMessage msg, ulong guildId, string command )
+        {
+            var guildConfig = await _guildConfigManager.GetGuildConfig(guildId);
+
+            if ( guildConfig.DeleteBotResponseAfterEraseCommands )
+            {
+                var messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
+                        .Append( $"Auto-deleted '{command}' command response in: [" )
+                        .AppendHighlight( $"{guildConfig.GuildName}", ConsoleColor.Cyan )
+                        .Append( ",")
+                        .AppendHighlight($"{guildId}", ConsoleColor.DarkGreen)
+                        .Append("] per server configuration.");
+
+                Logger.LogColorableBuilderMessage( messageBuilder );
+                await ctx.Channel.DeleteMessageAsync( msg );
             }
         }
     }

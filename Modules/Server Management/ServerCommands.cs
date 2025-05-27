@@ -87,12 +87,10 @@ namespace Zarnogh.Modules.ServerManagement
                 enabledModules.Append( ", " );
             }
 
-            int i = 0;
-            foreach ( var module in _moduleManager.LoadedModules )
+            for ( int i = 0; i < _moduleManager.LoadedGlobalModules.Count; i++ )
             {
-                enabledModules.Append( module.NameOfModule );
+                enabledModules.Append( _moduleManager.LoadedGlobalModules[i].NameOfModule ).Append( " (Global)" );
                 if ( i < _moduleManager.LoadedModules.Count - 1 ) enabledModules.Append( ", " );
-                i++;
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder

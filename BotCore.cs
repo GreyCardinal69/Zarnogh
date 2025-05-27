@@ -100,7 +100,9 @@ namespace Zarnogh
                 .AppendHighlight( $"{e.Command.QualifiedName}", ConsoleColor.Cyan )
                 .Append("] in ")
                 .AppendHighlight($"#{e.Context.Channel.Name}", ConsoleColor.DarkGreen)
-                .Append($" in ({e.Context.Guild?.Name ?? "Direct Messages"}).");
+                .Append($" in (")
+                .AppendHighlight($"{e.Context.Guild?.Name ?? "Direct Messages"}", ConsoleColor.Cyan)
+                .Append(").");
 
             Logger.LogColorableBuilderMessage( messageBuilder );
             return Task.CompletedTask;

@@ -15,6 +15,7 @@ namespace Zarnogh.Modules
         private readonly GuildConfigManager _guildConfigManager;
 
         public IReadOnlyList<IBotModule> LoadedModules => _loadedModules.AsReadOnly();
+        public IReadOnlyList<IBotModule> LoadedGlobalModules => _loadedGlobalModules.AsReadOnly();
 
         public ModuleManager( ServiceProvider services, BotConfig botConfig, GuildConfigManager guildConfigManager, ZarnoghState state )
         {
