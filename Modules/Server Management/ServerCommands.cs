@@ -3,6 +3,7 @@ using System.Text;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.ServerManagement
@@ -22,7 +23,19 @@ namespace Zarnogh.Modules.ServerManagement
             _moduleManager = moduleManager;
         }
 
-        [Command( "serverprofile" )]
+        [Command( "toggleEraseAutoDelete" )]
+        [Description( "Responds with the server's configuration (profile)." )]
+        public async Task ToggleEraseAutoDelete( CommandContext ctx, bool yn )
+        {
+            var profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id);
+
+            profile.DeleteBotResponseAfterEraseCommands = yn;
+
+            await File.WriteAllTextAsync( Path.Combine( "GuildConfigs", $"{ctx.Guild.Id}.json" ), JsonConvert.SerializeObject( profile, Formatting.Indented ) );
+            await ctx.RespondAsync( $"`Delete bot response message after erase commands` toggle set to: `{yn}`" );
+        }
+
+        [Command( "serverProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
         public async Task Profile( CommandContext ctx )
         {
