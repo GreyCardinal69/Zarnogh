@@ -8,6 +8,7 @@ namespace Zarnogh.Modules
     public class ModuleManager
     {
         private readonly List<IBotModule> _loadedModules = new List<IBotModule>();
+        private readonly List<IBotModule> _loadedGlobalModules = new List<IBotModule>();
         private readonly ServiceProvider _services;
         private readonly BotConfig _botConfig;
         private readonly ZarnoghState _botState;
@@ -30,22 +31,19 @@ namespace Zarnogh.Modules
             var moduleTypes = assemblyToScan.GetTypes()
             .Where(t => typeof(IBotModule).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
+            Logger.LogMessage( "\nAttempting to load command modules..." );
             foreach ( var type in moduleTypes )
             {
-                Logger.LogMessage( "\nAttempting to load command modules..." );
                 try
                 {
                     if ( Activator.CreateInstance( type ) is IBotModule moduleInstance )
                     {
+                        _loadedModules.Add( moduleInstance );
                         if ( moduleInstance.IsACoreModule || _botConfig.DefaultGlobalModules.Contains( moduleInstance.NameOfModule ) )
                         {
                             await moduleInstance.InitializeAsync( _services );
-                            _loadedModules.Add( moduleInstance );
+                            _loadedGlobalModules.Add( moduleInstance );
                             Logger.LogMessage( $"Loaded module: {moduleInstance.NameOfModule}." );
-                        }
-                        else
-                        {
-                            Logger.LogMessage( $"Skipped module (globally disabled): {moduleInstance.NameOfModule}" );
                         }
                     }
                 }
@@ -66,6 +64,12 @@ namespace Zarnogh.Modules
                 Logger.LogMessage( $"Registered commands for module: {module.NameOfModule}" );
             }
             Logger.LogMessage( "Finished registering commands for loaded modules.\n" );
+        }
+
+        public bool IsCommandModuleGlobal( string name )
+        {
+            for ( int i = 0; i < _loadedModules.Count; i++ ) if ( string.Equals( name, _loadedModules[i] ) && _loadedModules[i].IsACoreModule ) return true;
+            return false;
         }
 
         public bool IsModuleEnabledForGuild( string moduleName, ulong guildId )

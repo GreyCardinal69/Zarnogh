@@ -283,7 +283,7 @@ namespace Zarnogh.Modules.General
             if ( fromMessage.Timestamp > toMessage.Timestamp )
             {
                 (fromMessage, toMessage) = (toMessage, fromMessage);
-                 await ctx.RespondAsync("`From` message older than `To` message, wrong order, reordered.");
+                await ctx.RespondAsync( "`From` message older than `To` message, wrong order, reordered." );
             }
 
             List<DiscordMessage> messagesToDelete = new List<DiscordMessage>() { fromMessage, toMessage };
@@ -301,7 +301,7 @@ namespace Zarnogh.Modules.General
                 {
                     if ( msg.Timestamp < fromMessage.Timestamp )
                     {
-                        foundStartMessage = true; 
+                        foundStartMessage = true;
                         break;
                     }
 

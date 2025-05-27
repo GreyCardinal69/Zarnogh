@@ -1,12 +1,12 @@
 ﻿using DSharpPlus.CommandsNext;
 using Zarnogh.Services;
 
-namespace Zarnogh.Modules.General
+namespace Zarnogh.Modules.ServerManagement
 {
-    public class GeneralCommandsModule : IBotModule
+    public class ServerCommandsModule : IBotModule
     {
-        public string NameOfModule => "General Commands";
-        public string ModuleDescription => "Provides general utility commands.";
+        public string NameOfModule => "Server Management";
+        public string ModuleDescription => "Provides commands for managing the bot's server configuration.";
         public bool IsACoreModule => true;
 
         public Task InitializeAsync( ServiceProvider services )
@@ -17,8 +17,8 @@ namespace Zarnogh.Modules.General
         public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
         {
             ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<GeneralCommands>();
-            Logger.LogMessage( $"Registered GeneralCommands Module." );
+            commandsNext.RegisterCommands<ServerCommands>();
+            Logger.LogMessage( $"Registered Server Management Module." );
         }
     }
 }

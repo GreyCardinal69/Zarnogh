@@ -59,6 +59,7 @@ namespace Zarnogh.Configuration
                 EnabledModules = new List<string>(),
                 GuildId = guildId,
                 GuildName = ctx.Guild.Name,
+                ProfileCreationDate = DateTime.UtcNow,
             };
 
             messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )

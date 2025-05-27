@@ -5,7 +5,8 @@
         public string GuildName { get; set; }
         public ulong GuildId { get; set; }
         public List<string> EnabledModules { get; set; }
-
+        public DateTime ProfileCreationDate { get; init; }
         public bool DeleteBotResponseAfterEraseCommands { get; set; }
+        public ulong BotNotificationsChannel { get; set; }
     }
 }
