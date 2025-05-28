@@ -94,7 +94,7 @@ namespace Zarnogh.Modules.ServerManagement
             for ( int i = 0; i < _moduleManager.LoadedGlobalModules.Count; i++ )
             {
                 enabledModules.Append( _moduleManager.LoadedGlobalModules[i].NameOfModule ).Append( " (Global)" );
-                if ( i < _moduleManager.LoadedModules.Count - 1 ) enabledModules.Append( ", " );
+                if ( i < _moduleManager.LoadedGlobalModules.Count - 1 ) enabledModules.Append( ", " );
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder

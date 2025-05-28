@@ -1,5 +1,4 @@
 ﻿using DSharpPlus.CommandsNext;
-using Zarnogh.Modules.General;
 using Zarnogh.Services;
 
 namespace Zarnogh.Modules.Debug

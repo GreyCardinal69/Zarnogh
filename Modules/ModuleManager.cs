@@ -44,6 +44,10 @@ namespace Zarnogh.Modules
                         {
                             await moduleInstance.InitializeAsync( _services );
                             _loadedGlobalModules.Add( moduleInstance );
+                            Logger.LogMessage( $"Loaded module: {moduleInstance.NameOfModule} (Global)." );
+                        }
+                        else
+                        {
                             Logger.LogMessage( $"Loaded module: {moduleInstance.NameOfModule}." );
                         }
                     }

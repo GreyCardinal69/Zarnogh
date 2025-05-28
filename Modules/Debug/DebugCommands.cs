@@ -22,7 +22,7 @@ namespace Zarnogh.Modules.Debug
 
         [Command( "UpTime" )]
         [Description( "Displays the bot's current operational uptime." )]
-        [RequireUserPermissions(DSharpPlus.Permissions.ManageGuild)]
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
         public async Task UpTime( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
@@ -43,11 +43,11 @@ namespace Zarnogh.Modules.Debug
                 n = 1000;
             }
 
-            await ctx.RespondAsync( $"Dumping console...{Logger.GetConsoleLines(ctx, n)}" );
+            await ctx.RespondAsync( $"Dumping console...{Logger.GetConsoleLines( ctx, n )}" );
         }
 
         [Command( "DumpConsole" )]
-        [Description( "Dumps the last N lines of the console." )]
+        [Description( "Dumps the last 100 lines of the console." )]
         [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
         public async Task DumpConsole( CommandContext ctx )
         {
