@@ -28,9 +28,9 @@ namespace Zarnogh.Services
             }
         }
 
-        public static async Task GetConsoleLines( CommandContext ctx, int count )
+        public static string GetConsoleLines( CommandContext ctx, int count )
         {
-            await ctx.RespondAsync( $"```\n{string.Join( "", _cachingConsoleWriter.GetLastNLines( count ) )}\n```" );
+            return $"```\n{string.Join( "", _cachingConsoleWriter.GetLastNLines( count ) )}\n```";
         }
 
         private static void LogMessage( ColorableMessageBuilder messageBuilder )
