@@ -4,7 +4,7 @@ using Zarnogh.Services;
 
 namespace Zarnogh.Modules.Debug
 {
-    public class DebugModule : IBotModule
+    public class DebugCommandsModule : IBotModule
     {
         public string NameOfModule => "Debug Commands";
         public string ModuleDescription => "Provides utility commands for debugging the bot.";
@@ -18,7 +18,7 @@ namespace Zarnogh.Modules.Debug
         public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
         {
             ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<GeneralCommands>();
+            commandsNext.RegisterCommands<DebugCommands>();
             Logger.LogMessage( $"Registered DebugCommands Module." );
         }
     }
