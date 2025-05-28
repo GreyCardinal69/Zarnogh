@@ -9,6 +9,7 @@ namespace Zarnogh
         public DiscordClient Client { get; init; }
         public DateTime StartUpTime { get; init; }
         public CommandsNextExtension CommandsNext { get; init; }
+        public BotCore BotCore { get; init; }
 
         public async Task<CommandContext> CreateNewCommandContext( ulong guildId, ulong channelId = 0 )
         {

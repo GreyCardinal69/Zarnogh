@@ -52,7 +52,16 @@ namespace Zarnogh.Modules.Debug
         public async Task DumpConsole( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync( $"No line count specified, dumping last 20 console lines...{Logger.GetConsoleLines( ctx, 100 )}" );
+            await ctx.RespondAsync( $"No line count specified, dumping the last 20 console lines...{Logger.GetConsoleLines( ctx, 20 )}" );
+        }
+
+        [Command( "Terminate" )]
+        [Description( "Terminates the bot instance." )]
+        [RequireOwner]
+        public async Task Terminate( CommandContext ctx )
+        {
+            await ctx.RespondAsync( "Terminating..." );
+            await _botState.BotCore.ShutdownAsync();
         }
     }
 }

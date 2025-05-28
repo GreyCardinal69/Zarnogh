@@ -66,6 +66,7 @@ namespace Zarnogh
                 Client = Client,
                 CommandsNext = CommandsNext,
                 StartUpTime = DateTime.Now,
+                BotCore = this
             };
             _services.AddService( _botState );
 
@@ -219,7 +220,7 @@ namespace Zarnogh
                 _tickLoopCts.Cancel();
                 _tickLoopCts.Dispose();
             }
-            _tickLoopTask.Dispose();
+            Environment.Exit( 0 );
         }
     }
 }
