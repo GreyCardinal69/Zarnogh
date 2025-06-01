@@ -1,20 +1,31 @@
-﻿namespace Zarnogh.Modules.Timing
+﻿using DSharpPlus.CommandsNext;
+using Zarnogh.Configuration;
+
+namespace Zarnogh.Modules.Timing
 {
-    public class TimedReminder
+    public class TimedReminder : ITimedAction
     {
+        public string Name { get; private set; }
+        public bool Repeat { get; private set; }
+        public long ExpDate { get; private set; }
+        public DateTime StartDate { get; private set; }
+        public string Content { get; private set; }
+        public string Date { get; private set; }
+        public string DateFormat { get; private set; }
+
+        public ZarnoghState BotState { get; set; }
+        public GuildConfigManager GuildConfigManager { get; set; }
+        public ulong GuildId { get; set; }
+
         // Sometimes the bot can be started after a timed reminder has expired
         // Dont want a notification after 10 hours at most from expected reminder date
         public bool HasExpiredRecently( DateTimeOffset now )
         {
-            return Math.Abs( now.ToUnixTimeSeconds() - ExpDate ) < 36000;
+            var unix =  now.ToUnixTimeSeconds();
+            return Math.Abs( unix - ExpDate ) < 36000 && unix >= ExpDate;
         }
 
-        public bool HasExpired( DateTimeOffset now )
-        {
-            return now.ToUnixTimeSeconds() >= ExpDate;
-        }
-
-        public void UpdateExpDate()
+        public void UpdateExpirationDate()
         {
             string[] times;
             DateTimeOffset temp;
@@ -83,7 +94,7 @@
             }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return $"Timed Reminder: `{Name}` \nContent: {Content} \n`{DateTime.UtcNow}`";
         }
@@ -109,15 +120,37 @@
                 return;
             }
 
-            UpdateExpDate();
+            UpdateExpirationDate();
         }
 
-        public string Name { get; private set; }
-        public bool Repeat { get; private set; }
-        public long ExpDate { get; private set; }
-        public DateTime StartDate { get; private set; }
-        public string Content { get; private set; }
-        public string Date { get; private set; }
-        public string DateFormat { get; private set; }
+        public void Inject( GuildConfigManager mgr, ZarnoghState state, ulong guildId )
+        {
+            this.GuildConfigManager = mgr;
+            this.BotState = state;
+            this.GuildId = guildId;
+        }
+
+        public async Task BotCoreTickAsync( BotCore state, DateTimeOffset fireDate )
+        {
+            if ( HasExpiredRecently( DateTimeOffset.UtcNow ) )
+            {
+                var profile = await GuildConfigManager.GetOrCreateGuildConfig( GuildId );
+                CommandContext tempContext = await BotState.CreateNewCommandContext( GuildId, profile.BotNotificationsChannel );
+
+                await tempContext.RespondAsync( this.ToString() );
+                if ( !Repeat )
+                {
+                    profile.TimedReminders.Remove( this );
+                    await tempContext.RespondAsync( $"Timed Reminder not set to repeat, removing it from server reminders list." );
+                    await GuildConfigManager.SaveGuildConfigAsync( profile );
+                }
+                else
+                {
+                    UpdateExpirationDate();
+                    await tempContext.RespondAsync( $"Timed Reminder set to repeat, repeating..\n Next time the reminder will go off at <t:{ExpDate}>." );
+                    await GuildConfigManager.SaveGuildConfigAsync( profile );
+                }
+            }
+        }
     }
 }
