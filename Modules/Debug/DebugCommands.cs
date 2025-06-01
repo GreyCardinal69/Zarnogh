@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using Newtonsoft.Json;
 using Zarnogh.Configuration;
 using Zarnogh.Services;
 
@@ -60,8 +61,35 @@ namespace Zarnogh.Modules.Debug
         [RequireOwner]
         public async Task Terminate( CommandContext ctx )
         {
+            await ctx.TriggerTypingAsync();
             await ctx.RespondAsync( "Terminating..." );
             await _botState.BotCore.ShutdownAsync();
+        }
+
+        [Command( "SetInternalTickLoopInterval" )]
+        [Description( "Changes the bot's TickLoopIntervalMilliseconds config property." )]
+        [RequireOwner]
+        public async Task SetInternalTickLoopInterval( CommandContext ctx, int ms )
+        {
+            await ctx.TriggerTypingAsync();
+
+            if ( ms <= 0 )
+            {
+                await ctx.RespondAsync( "Time interval too small, aborting..." );
+                return;
+            }
+
+            var newConfig = new BotConfig()
+            {
+                DefaultGlobalModules = _botConfig.DefaultGlobalModules,
+                OwnerId = _botConfig.OwnerId,
+                Prefix = _botConfig.Prefix,
+                TickLoopIntervalMilliseconds = ms,
+                Token = _botConfig.Token,
+            };
+
+            await File.WriteAllTextAsync( Path.Combine( Directory.GetCurrentDirectory(), "Config.json" ), JsonConvert.SerializeObject( newConfig, Formatting.Indented ) );
+            await ctx.RespondAsync( $"Changed internal tick interval to {ms} milliseconds." );
         }
     }
 }
