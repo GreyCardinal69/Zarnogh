@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Zarnogh.Configuration;
+using Zarnogh.Modules.Timing;
 
 namespace Zarnogh.Modules.ServerManagement
 {
@@ -61,6 +62,33 @@ namespace Zarnogh.Modules.ServerManagement
             await ctx.RespondAsync( $"Bot notifications channel set to: {channel.Mention}." );
         }
 
+        [Command( "ToggleCommandModule" )]
+        [Description( "Toggles a command module for the server." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task ToggleCommandModule( CommandContext ctx, [RemainingText] string module )
+        {
+            if ( !_moduleManager.CommandModuleExists(module))
+            {
+                await ctx.RespondAsync( "Invalid command module name, aborting..." );
+                return;
+            }
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            if ( profile.EnabledModules.Contains(module) )
+            {
+                profile.EnabledModules.Remove(module);
+                await ctx.RespondAsync( $"Disabled command module `\"{module}\"` for the server." );
+                await _guildConfigManager.SaveGuildConfigAsync( profile );
+                return;
+            }
+
+            profile.EnabledModules.Add( module );
+            await ctx.RespondAsync( $"Enabled command module `\"{module}\"` for the server." );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+            return;
+        }
+
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
 
@@ -96,6 +124,13 @@ namespace Zarnogh.Modules.ServerManagement
                 if ( i < _moduleManager.LoadedGlobalModules.Count - 1 ) enabledModules.Append( ", " );
             }
 
+            StringBuilder timedReminders = new StringBuilder();
+
+            foreach ( TimedReminder item in profile.TimedReminders )
+            {
+                timedReminders.Append( $"{item.Name}: Will go off at: {DateTimeOffset.FromUnixTimeSeconds( item.ExpDate )} / <t:{item.ExpDate}> in Unix.\n\n" );
+            }
+
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Server Profile for `{ctx.Guild.Name}`",
@@ -106,6 +141,7 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"Server profile created at: `{profile.ProfileCreationDate}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Bot instructed to delete response message after erase commands: `{profile.DeleteBotResponseAfterEraseCommands}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n ```{(timedReminders.Length > 0 ? timedReminders : "None")}```\n\n")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {

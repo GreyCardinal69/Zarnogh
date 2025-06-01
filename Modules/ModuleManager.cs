@@ -73,7 +73,13 @@ namespace Zarnogh.Modules
 
         public bool IsCommandModuleGlobal( string name )
         {
-            for ( int i = 0; i < _loadedModules.Count; i++ ) if ( string.Equals( name, _loadedModules[i] ) && _loadedModules[i].IsACoreModule ) return true;
+            for ( int i = 0; i < _loadedModules.Count; i++ ) if ( string.Equals( name, _loadedModules[i].NameOfModule, StringComparison.Ordinal ) && _loadedModules[i].IsACoreModule ) return true;
+            return false;
+        }
+
+        public bool CommandModuleExists( string name )
+        {
+            for ( int i = 0; i < _loadedModules.Count; i++ ) if ( string.Equals( name, _loadedModules[i].NameOfModule, StringComparison.Ordinal ) ) return true;
             return false;
         }
 

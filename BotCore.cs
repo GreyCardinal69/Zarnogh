@@ -214,6 +214,12 @@ namespace Zarnogh
                 return;
             }
 
+            if ( e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException )
+            {
+                // Command doesnt exist, or a typo, ignore it.
+                return;
+            }
+
             Logger.LogError( $"{e.Context.User.Username} tried to execute '{e.Command?.QualifiedName ?? "unknown command"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message}." );
             await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"{e.Exception}\"." );
             Logger.LogError( $"\n{e.Exception.StackTrace}." );
