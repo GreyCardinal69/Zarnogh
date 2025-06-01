@@ -5,6 +5,7 @@ using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.Timing
 {
+    [RequireModuleEnabled( "Timed Commands" )]
     public class TimingCommands : BaseCommandModule
     {
         private readonly BotConfig _botConfig;
@@ -26,7 +27,6 @@ namespace Zarnogh.Modules.Timing
         public async Task AddTimedReminder( CommandContext ctx, string name, string content, bool repeat, string dateType, string date )
         {
             await ctx.TriggerTypingAsync();
-
             GuildConfig cfg = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
 
             name = name.Replace( '_', ' ' );
@@ -77,6 +77,26 @@ namespace Zarnogh.Modules.Timing
             }
             sb.Append( "```" );
             await ctx.RespondAsync( sb.ToString() );
+        }
+
+        [Command( "PurgeTimedReminders" )]
+        [Description( "Removes all registered timed reminders for the server." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task PurgeTimedReminders( CommandContext ctx, string name )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            if ( profile.TimedReminders.Count <= 0 )
+            {
+                await ctx.RespondAsync( "No timed reminders registered, aborting..." );
+                return;
+            }
+
+            profile.TimedReminders.Clear();
+            await ctx.RespondAsync( $"All timed reminders successfully removed." );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
         }
 
         [Command( "RemoveTimedReminder" )]

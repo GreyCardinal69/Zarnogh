@@ -205,6 +205,15 @@ namespace Zarnogh
 
         private async Task OnCommandErrored( CommandsNextExtension sender, CommandErrorEventArgs e )
         {
+            if ( e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException cfe )
+            {
+                // this error occurs only when we use RequireModuleEnabled Attribute to check
+                // whether a command module is enabled for a server, the check returns false if not
+                // which DSharpPlus handles as an exception, in this context it should do nothing except the notify the command caller
+                // so we just ignore this here.
+                return;
+            }
+
             Logger.LogError( $"{e.Context.User.Username} tried to execute '{e.Command?.QualifiedName ?? "unknown command"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message}." );
             await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"{e.Exception}\"." );
             Logger.LogError( $"\n{e.Exception.StackTrace}." );

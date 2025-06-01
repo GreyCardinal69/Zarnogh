@@ -77,10 +77,10 @@ namespace Zarnogh.Modules
             return false;
         }
 
-        public bool IsModuleEnabledForGuild( string moduleName, ulong guildId )
+        public async Task<bool> IsModuleEnabledForGuild( string moduleName, ulong guildId )
         {
             if ( _botConfig.DefaultGlobalModules.Contains( moduleName ) ) return true;
-            var guildConfig = _guildConfigManager.GetOrCreateGuildConfig(guildId).Result;
+            var guildConfig = await _guildConfigManager.GetOrCreateGuildConfig(guildId);
             return guildConfig.EnabledModules.Contains( moduleName, StringComparer.OrdinalIgnoreCase );
         }
     }
