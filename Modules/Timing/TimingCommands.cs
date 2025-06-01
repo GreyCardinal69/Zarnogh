@@ -19,12 +19,34 @@ namespace Zarnogh.Modules.Timing
             _moduleManager = moduleManager;
         }
 
-        [Command( "Pingee" )]
-        [Description( "Checks the bot's responsiveness." )]
-        public async Task Pingee( CommandContext ctx )
+        [Command( "AddTimedReminder" )]
+        [Description( "Adds a timed reminder for the server." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task AddTimedReminder( CommandContext ctx, string name, string content, bool repeat, string dateType, string date )
         {
             await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync( $"Ping: {ctx.Client.Ping}ms." );
+
+            GuildConfig cfg = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            name = name.Replace( '_', ' ' );
+
+            for ( int i = 0; i < cfg.TimedReminders.Count; i++ )
+            {
+                if ( string.Equals( name, cfg.TimedReminders[i].Name, StringComparison.Ordinal ) )
+                {
+                    await ctx.RespondAsync( $"Timed reminder with ID: \"{name}\" already exists." );
+                    return;
+                }
+            }
+
+            TimedReminder reminder = new TimedReminder( name, content.Replace( '_', ' ' ), repeat, dateType, date );
+            reminder.Inject( _guildConfigManager, _botState, ctx.Guild.Id );
+
+            _botState.BotCore.TickAsync += reminder.BotCoreTickAsync;
+
+            cfg.TimedReminders.Add( reminder );
+            await ctx.RespondAsync( $"Timed Reminder: `{name}` successfully added.\nThe reminder will go off at: <t:{reminder.ExpDate}>." );
+            await _guildConfigManager.SaveGuildConfigAsync( cfg );
         }
     }
 }

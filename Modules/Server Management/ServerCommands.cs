@@ -28,7 +28,7 @@ namespace Zarnogh.Modules.ServerManagement
         public async Task ToggleEraseAutoDelete( CommandContext ctx, bool yn )
         {
             await ctx.TriggerTypingAsync();
-            var profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id);
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id);
 
             profile.DeleteBotResponseAfterEraseCommands = yn;
 
@@ -69,7 +69,7 @@ namespace Zarnogh.Modules.ServerManagement
         {
             await ctx.TriggerTypingAsync();
 
-            GuildConfig profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id );
+            GuildConfig profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
 
             DiscordChannel notificationsChannel = null;
 

@@ -207,7 +207,7 @@ namespace Zarnogh
         {
             Logger.LogError( $"{e.Context.User.Username} tried to execute '{e.Command?.QualifiedName ?? "unknown command"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message}." );
             await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"{e.Exception}\"." );
-            Logger.LogError( $"{e.Exception.Message}\n{e.Exception.InnerException}\n{e.Exception.Data}\n{e.Exception.StackTrace}." );
+            Logger.LogError( $"\n{e.Exception.StackTrace}." );
         }
 
         public async Task ShutdownAsync()

@@ -44,6 +44,16 @@ namespace Zarnogh.Configuration
                         .Append( "]." );
 
                     Logger.LogColorableBuilderMessage( messageBuilder );
+
+                    if ( guildConfig.TimedReminders.Count > 0 )
+                    {
+                        foreach ( var item in guildConfig.TimedReminders )
+                        {
+                            item.Inject( this, _globalState, guildId );
+                            _globalState.BotCore.TickAsync += item.BotCoreTickAsync;
+                        }
+                    }
+
                     return config;
                 }
                 catch ( Exception ex )
