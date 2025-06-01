@@ -88,7 +88,7 @@ namespace Zarnogh.Modules.General
             InteractivityResult<DiscordMessage> msg = await interactivity.WaitForMessageAsync
             (
                 xm => string.Equals( xm.Content, "yes",
-                StringComparison.InvariantCultureIgnoreCase ),
+                StringComparison.Ordinal ),
                 TimeSpan.FromSeconds( 20 )
             );
 
@@ -127,7 +127,7 @@ namespace Zarnogh.Modules.General
             InteractivityResult<DiscordMessage> msg = await interactivity.WaitForMessageAsync
             (
                 xm => string.Equals( xm.Content, "yes",
-                StringComparison.InvariantCultureIgnoreCase ),
+                StringComparison.Ordinal ),
                 TimeSpan.FromSeconds( 20 )
             );
 

@@ -67,7 +67,7 @@ namespace Zarnogh.Modules.ServerManagement
         [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
         public async Task ToggleCommandModule( CommandContext ctx, [RemainingText] string module )
         {
-            if ( !_moduleManager.CommandModuleExists(module))
+            if ( !_moduleManager.CommandModuleExists( module ) )
             {
                 await ctx.RespondAsync( "Invalid command module name, aborting..." );
                 return;
@@ -75,9 +75,9 @@ namespace Zarnogh.Modules.ServerManagement
 
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
 
-            if ( profile.EnabledModules.Contains(module) )
+            if ( profile.EnabledModules.Contains( module ) )
             {
-                profile.EnabledModules.Remove(module);
+                profile.EnabledModules.Remove( module );
                 await ctx.RespondAsync( $"Disabled command module `\"{module}\"` for the server." );
                 await _guildConfigManager.SaveGuildConfigAsync( profile );
                 return;

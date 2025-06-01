@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using System.Globalization;
+using DSharpPlus.CommandsNext;
 using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.Timing
@@ -45,7 +46,7 @@ namespace Zarnogh.Modules.Timing
                     temp = new DateTimeOffset( current.Year, current.Month, current.Day, Math.Max( 0, Convert.ToInt32( times[1] ) - 1 ), 0, 0, new TimeSpan() );
                     int num = 0;
 
-                    switch ( times[0].ToLower() )
+                    switch ( times[0].ToLower( CultureInfo.CurrentCulture ) )
                     {
                         case "mo":
                             num = (int)DayOfWeek.Monday;
