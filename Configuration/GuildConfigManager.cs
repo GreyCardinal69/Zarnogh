@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Newtonsoft.Json;
+using Zarnogh.Modules;
 using Zarnogh.Services;
 
 namespace Zarnogh.Configuration
@@ -10,9 +11,11 @@ namespace Zarnogh.Configuration
         private const string _configDirectory = "GuildConfigs";
         private readonly BotConfig _globalConfig;
         private readonly ZarnoghState _globalState;
+        private readonly ServiceProvider _services;
 
-        public GuildConfigManager( BotConfig globalConfig, ZarnoghState globalState )
+        public GuildConfigManager( BotConfig globalConfig, ZarnoghState globalState, ServiceProvider services )
         {
+            _services = services;
             _globalConfig = globalConfig ?? throw new ArgumentNullException( $"Global Config ({nameof( globalConfig )}) is null in GuildConfigManager constructor" );
             _globalState = globalState ?? throw new ArgumentNullException( $"Global State ({nameof( globalState )}) is null in GuildConfigManager constructor" );
             Directory.CreateDirectory( _configDirectory );
@@ -45,12 +48,18 @@ namespace Zarnogh.Configuration
 
                     Logger.LogColorableBuilderMessage( messageBuilder );
 
-                    if ( guildConfig.TimedReminders.Count > 0 )
+                    ModuleManager moduleMgr = _services.GetService<ModuleManager>();
+
+                    // Server might have timed reminders registered, but the module disabled, should not run them in that case.
+                    if ( await moduleMgr.IsModuleEnabledForGuild( "Timed Commands", guildId ) )
                     {
-                        foreach ( var item in guildConfig.TimedReminders )
+                        if ( guildConfig.TimedReminders.Count > 0 )
                         {
-                            item.Inject( this, _globalState, guildId );
-                            _globalState.BotCore.TickAsync += item.BotCoreTickAsync;
+                            foreach ( var item in guildConfig.TimedReminders )
+                            {
+                                item.Inject( this, _globalState, guildId );
+                                _globalState.BotCore.TickAsync += item.BotCoreTickAsync;
+                            }
                         }
                     }
 

@@ -1,6 +1,4 @@
-﻿using Zarnogh.Configuration;
-
-namespace Zarnogh.Other
+﻿namespace Zarnogh.Other
 {
     public static class Utilities
     {
