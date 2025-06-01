@@ -81,6 +81,7 @@ namespace Zarnogh
 
             Client.Ready += OnClientReady;
             Client.GuildAvailable += OnGuildAvailable;
+
             CommandsNext.CommandExecuted += OnCommandExecuted;
             CommandsNext.CommandErrored += OnCommandErrored;
 

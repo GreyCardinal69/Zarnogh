@@ -1,4 +1,6 @@
-﻿namespace Zarnogh.Configuration
+﻿using Zarnogh.Modules.Timing;
+
+namespace Zarnogh.Configuration
 {
     public class GuildConfig
     {
@@ -8,5 +10,6 @@
         public DateTime ProfileCreationDate { get; init; }
         public bool DeleteBotResponseAfterEraseCommands { get; set; }
         public ulong BotNotificationsChannel { get; set; }
+        public List<TimedReminder> TimedReminders { get; set; }
     }
 }

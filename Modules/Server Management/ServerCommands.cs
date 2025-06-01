@@ -33,7 +33,7 @@ namespace Zarnogh.Modules.ServerManagement
 
             profile.DeleteBotResponseAfterEraseCommands = yn;
 
-            await File.WriteAllTextAsync( Path.Combine( "GuildConfigs", $"{ctx.Guild.Id}.json" ), JsonConvert.SerializeObject( profile, Formatting.Indented ) );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
             await ctx.RespondAsync( $"`Delete bot response message after erase commands` toggle set to: `{yn}`." );
         }
 
@@ -58,7 +58,7 @@ namespace Zarnogh.Modules.ServerManagement
             var newCtx = await _botState.CreateNewCommandContext(ctx.Guild.Id, channel.Id);
             await newCtx.RespondAsync( "<Test Notification>" );
 
-            await File.WriteAllTextAsync( Path.Combine( "GuildConfigs", $"{ctx.Guild.Id}.json" ), JsonConvert.SerializeObject( profile, Formatting.Indented ) );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
             await ctx.RespondAsync( $"Bot notifications channel set to: {channel.Mention}." );
         }
 
