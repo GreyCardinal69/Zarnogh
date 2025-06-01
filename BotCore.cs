@@ -185,7 +185,7 @@ namespace Zarnogh
 
         private async Task OnGuildAvailable( DiscordClient sender, GuildCreateEventArgs e )
         {
-            await _guildConfigManager.GetGuildConfig( e.Guild.Id );
+            await _guildConfigManager.GetOrCreateGuildConfig( e.Guild.Id );
         }
 
         private Task OnCommandExecuted( CommandsNextExtension sender, CommandExecutionEventArgs e )
@@ -206,7 +206,8 @@ namespace Zarnogh
         private async Task OnCommandErrored( CommandsNextExtension sender, CommandErrorEventArgs e )
         {
             Logger.LogError( $"{e.Context.User.Username} tried to execute '{e.Command?.QualifiedName ?? "unknown command"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message}." );
-            await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"`{e.Exception.Message}`\"" );
+            await e.Context.RespondAsync( $"An error occurred while executing the command. The details have been logged.\n\"{e.Exception}\"." );
+            Logger.LogError( $"{e.Exception.Message}\n{e.Exception.InnerException}\n{e.Exception.Data}\n{e.Exception.StackTrace}." );
         }
 
         public async Task ShutdownAsync()

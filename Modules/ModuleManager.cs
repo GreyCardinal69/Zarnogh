@@ -80,7 +80,7 @@ namespace Zarnogh.Modules
         public bool IsModuleEnabledForGuild( string moduleName, ulong guildId )
         {
             if ( _botConfig.DefaultGlobalModules.Contains( moduleName ) ) return true;
-            var guildConfig = _guildConfigManager.GetGuildConfig(guildId).Result;
+            var guildConfig = _guildConfigManager.GetOrCreateGuildConfig(guildId).Result;
             return guildConfig.EnabledModules.Contains( moduleName, StringComparer.OrdinalIgnoreCase );
         }
     }

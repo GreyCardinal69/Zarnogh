@@ -3,7 +3,6 @@ using System.Text;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Newtonsoft.Json;
 using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.ServerManagement
@@ -52,7 +51,7 @@ namespace Zarnogh.Modules.ServerManagement
                 return;
             }
 
-            GuildConfig profile = await _guildConfigManager.GetGuildConfig( ctx.Guild.Id );
+            GuildConfig profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
             profile.BotNotificationsChannel = channel.Id;
 
             var newCtx = await _botState.CreateNewCommandContext(ctx.Guild.Id, channel.Id);

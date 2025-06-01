@@ -18,7 +18,7 @@ namespace Zarnogh.Configuration
             Directory.CreateDirectory( _configDirectory );
         }
 
-        public async Task<GuildConfig> GetGuildConfig( ulong guildId )
+        public async Task<GuildConfig> GetOrCreateGuildConfig( ulong guildId )
         {
             if ( _guildConfigurations.TryGetValue( guildId, out var config ) )
             {
@@ -60,6 +60,9 @@ namespace Zarnogh.Configuration
                 GuildId = guildId,
                 GuildName = ctx.Guild.Name,
                 ProfileCreationDate = DateTime.UtcNow,
+                DeleteBotResponseAfterEraseCommands = false,
+                BotNotificationsChannel = 0,
+                TimedReminders = new()
             };
 
             messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
@@ -71,7 +74,7 @@ namespace Zarnogh.Configuration
 
             Logger.LogColorableBuilderMessage( messageBuilder );
 
-            await File.WriteAllTextAsync( Path.Combine( _configDirectory, $"{guildId}.json" ), JsonConvert.SerializeObject( newConfig, Formatting.Indented ) );
+            await SaveGuildConfigAsync( newConfig );
             return newConfig;
         }
 

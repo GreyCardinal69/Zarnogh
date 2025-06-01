@@ -354,7 +354,7 @@ namespace Zarnogh.Modules.General
 
         private async Task TryDeleteEraseResponseMessage( CommandContext ctx, DiscordMessage msg, ulong guildId, string command )
         {
-            var guildConfig = await _guildConfigManager.GetGuildConfig(guildId);
+            var guildConfig = await _guildConfigManager.GetOrCreateGuildConfig(guildId);
 
             if ( guildConfig.DeleteBotResponseAfterEraseCommands )
             {
