@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using System.Text;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using Zarnogh.Configuration;
 
@@ -47,6 +48,65 @@ namespace Zarnogh.Modules.Timing
             cfg.TimedReminders.Add( reminder );
             await ctx.RespondAsync( $"Timed Reminder: `{name}` successfully added.\nThe reminder will go off at: <t:{reminder.ExpDate}>." );
             await _guildConfigManager.SaveGuildConfigAsync( cfg );
+        }
+
+        [Command( "ListTimedReminders" )]
+        [Description( "Lists all timed reminders registered for the server." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task ListTimedReminders( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            if ( profile.TimedReminders.Count <= 0 )
+            {
+                await ctx.RespondAsync( "No timed reminders registered." );
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder("```");
+
+            int i = 1;
+            foreach ( TimedReminder item in profile.TimedReminders )
+            {
+                sb.Append( $"Reminder #{i}:\nName ( ID format ): \t{item.Name.Replace( ' ', '_' )}\n" )
+                  .Append( $"Content: \t{item.Content}\n" )
+                  .Append( $"The Reminder will go off at: \t<t:{item.ExpDate}>\n\n" );
+                i++;
+            }
+            sb.Append( "```" );
+            await ctx.RespondAsync( sb.ToString() );
+        }
+
+        [Command( "RemoveTimedReminder" )]
+        [Description( "Removes a registered timed reminder for the server." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task RemoveTimedReminder( CommandContext ctx, string name )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            if ( profile.TimedReminders.Count <= 0 )
+            {
+                await ctx.RespondAsync( "No timed reminders registered, aborting..." );
+                return;
+            }
+
+            var clean = name.Replace( '_', ' ' );
+
+            for ( int i = 0; i < profile.TimedReminders.Count; i++ )
+            {
+                if ( string.Equals( profile.TimedReminders[i].Name, clean, StringComparison.Ordinal ) )
+                {
+                    profile.TimedReminders.RemoveAt( i );
+                    await ctx.RespondAsync( $"Timed Reminder: `{clean}` successfully removed." );
+                    await _guildConfigManager.SaveGuildConfigAsync( profile );
+                    return;
+                }
+            }
+            await ctx.RespondAsync( $"Timed reminder with ID: {clean} not found." );
         }
     }
 }

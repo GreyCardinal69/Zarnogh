@@ -141,6 +141,7 @@ namespace Zarnogh.Modules.Timing
                 if ( !Repeat )
                 {
                     profile.TimedReminders.Remove( this );
+                    state.TickAsync -= BotCoreTickAsync;
                     await tempContext.RespondAsync( $"Timed Reminder not set to repeat, removing it from server reminders list." );
                     await GuildConfigManager.SaveGuildConfigAsync( profile );
                 }
