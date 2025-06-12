@@ -235,6 +235,13 @@ namespace Zarnogh
                 return;
             }
 
+            if ( e.Exception is ArgumentException )
+            {
+                // User called a command, didn't pass some argument.
+                await e.Context.RespondAsync( $"Invalid arguments for command: `{e.Command.QualifiedName}`." );
+                return;
+            }
+
             if ( e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException )
             {
                 // Command doesnt exist, or a typo, ignore it.
