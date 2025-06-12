@@ -1,4 +1,5 @@
-﻿using Zarnogh.Modules.Timing;
+﻿using Zarnogh.Modules.Logging;
+using Zarnogh.Modules.Timing;
 using Zarnogh.Other;
 
 namespace Zarnogh.Configuration
@@ -15,5 +16,6 @@ namespace Zarnogh.Configuration
         public UserWelcome WelcomeConfiguration { get; set; }
         public bool CustomWelcomeMessageEnabled { get; set; }
         public ulong EventLoggingChannelId { get; set; }
+        public LogConfig LoggingConfiguration { get; set; }
     }
 }
