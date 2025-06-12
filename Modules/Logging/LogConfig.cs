@@ -17,5 +17,6 @@
         public bool OnGuildMemberAdded { get; set; }
         public bool OnGuildMemberRemoved { get; set; }
         public bool OnMessagesBulkDeleted { get; set; }
+        public List<ulong> ChannelsExcludedFromLogging { get; set; }
     }
 }

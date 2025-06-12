@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using System.Text;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -44,6 +45,98 @@ namespace Zarnogh.Modules.Logging
             ("channeldeleted", "Channel Deleted", cfg => cfg.OnChannelCreated, cfg => cfg.OnChannelCreated = !cfg.OnChannelCreated),
             ("channelcreated", "Channel Created", cfg => cfg.OnChannelDeleted, cfg => cfg.OnChannelDeleted = !cfg.OnChannelDeleted),
         };
+
+        [Command( "AddLogExclusion" )]
+        [Description( "Excludes a channel from being logged." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task AddLogExclusion( CommandContext ctx, ulong id )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            DiscordChannel channel;
+            try
+            {
+                channel = ctx.Guild.GetChannel( id );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid channel id, aborting..." );
+                return;
+            }
+
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( id ) )
+            {
+                await ctx.RespondAsync( $"Channel {channel.Mention} is already excluded from logging." );
+                return;
+            }
+
+            profile.LoggingConfiguration.ChannelsExcludedFromLogging.Add( id );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+            await ctx.RespondAsync( $"Channel {channel.Mention} has been excluded from logging." );
+        }
+
+        [Command( "RemoveLogExclusion" )]
+        [Description( "Enables logging for the excluded channel." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task RemoveLogExclusion( CommandContext ctx, ulong id )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            DiscordChannel channel;
+            try
+            {
+                channel = ctx.Guild.GetChannel( id );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid channel id, aborting..." );
+                return;
+            }
+
+            if ( !profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( id ) )
+            {
+                await ctx.RespondAsync( $"Channel {channel.Mention} is not excluded from logging." );
+                return;
+            }
+
+            profile.LoggingConfiguration.ChannelsExcludedFromLogging.Remove( id );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+            await ctx.RespondAsync( $"Logging has been re-enabled for the channel: {channel.Mention}." );
+        }
+
+        [Command( "ListLogExclusions" )]
+        [Description( "Responds with a list of channels excluded from logging." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task ListLogExclusions( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            StringBuilder sb = new();
+
+            sb.Append( "The following channels are currently excluded from logging: " );
+
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Count == 0 )
+            {
+                sb.Append( "None" );
+            }
+            else
+            {
+                foreach ( var item in profile.LoggingConfiguration.ChannelsExcludedFromLogging )
+                {
+                    var channel = ctx.Guild.GetChannel( item );
+                    sb.Append( $"{channel.Mention} " );
+                }
+            }
+            sb.Append( '.' );
+
+            await ctx.RespondAsync( sb.ToString() );
+        }
 
         [Command( "ToggleLogEvents" )]
         [Description( "Configures which server events are logged." )]
