@@ -33,8 +33,6 @@ namespace Zarnogh.Modules.Logging
             ("guildmemberadded", "Member Added", cfg => cfg.OnGuildMemberAdded, cfg => cfg.OnGuildMemberAdded = !cfg.OnGuildMemberAdded),
             ("guildbanremoved", "Ban Removed", cfg => cfg.OnGuildBanRemoved, cfg => cfg.OnGuildBanRemoved = !cfg.OnGuildBanRemoved),
             ("guildbanadded", "Ban Added", cfg => cfg.OnGuildBanAdded, cfg => cfg.OnGuildBanAdded = !cfg.OnGuildBanAdded),
-            ("guildrolecreated", "Role Created", cfg => cfg.OnGuildRoleCreated, cfg => cfg.OnGuildRoleCreated = !cfg.OnGuildRoleCreated),
-            ("guildroleupdated", "Role Updated", cfg => cfg.OnGuildRoleUpdated, cfg => cfg.OnGuildRoleUpdated = !cfg.OnGuildRoleUpdated),
             ("guildroledeleted", "Role Deleted", cfg => cfg.OnGuildRoleDeleted, cfg => cfg.OnGuildRoleDeleted = !cfg.OnGuildRoleDeleted),
             ("messagesbulkdeleted", "Messages Bulk Deleted", cfg => cfg.OnMessagesBulkDeleted, cfg => cfg.OnMessagesBulkDeleted = !cfg.OnMessagesBulkDeleted),
             ("messagedeleted", "Message Deleted", cfg => cfg.OnMessageDeleted, cfg => cfg.OnMessageDeleted = !cfg.OnMessageDeleted),

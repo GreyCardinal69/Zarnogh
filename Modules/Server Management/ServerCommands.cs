@@ -206,6 +206,30 @@ namespace Zarnogh.Modules.ServerManagement
             string welcomeChannel = ctx.Guild.GetChannel(joinCfg.ChannelId).Mention;
             string welcomeMsg = profile.CustomWelcomeMessageEnabled ? $"`\"{joinCfg.Content}\"` at {welcomeChannel}, will give the following role: {welcomeRole}." : "Not Set";
 
+            StringBuilder enabledEvents = new StringBuilder();
+            if ( profile.LoggingConfiguration.OnInviteDeleted ) enabledEvents.Append( "`OnInviteDeleted` " );
+            if ( profile.LoggingConfiguration.OnGuildRoleDeleted ) enabledEvents.Append( "`OnGuildRoleDeleted` " );
+            if ( profile.LoggingConfiguration.OnMessageDeleted ) enabledEvents.Append( "`OnMessageDeleted` " );
+            if ( profile.LoggingConfiguration.OnMessageUpdated ) enabledEvents.Append( "`OnMessageUpdated` " );
+            if ( profile.LoggingConfiguration.OnChannelDeleted ) enabledEvents.Append( "`OnChannelDeleted` " );
+            if ( profile.LoggingConfiguration.OnChannelCreated ) enabledEvents.Append( "`OnChannelCreated` " );
+            if ( profile.LoggingConfiguration.OnInviteCreated ) enabledEvents.Append( "`OnInviteCreated` " );
+            if ( profile.LoggingConfiguration.OnMessageCreated ) enabledEvents.Append( "`OnMessageCreated` " );
+            if ( profile.LoggingConfiguration.OnGuildBanAdded ) enabledEvents.Append( "`OnGuildBanAdded` " );
+            if ( profile.LoggingConfiguration.OnGuildBanRemoved ) enabledEvents.Append( "`OnGuildBanRemoved` " );
+            if ( profile.LoggingConfiguration.OnGuildMemberAdded ) enabledEvents.Append( "`OnGuildMemberAdded` " );
+            if ( profile.LoggingConfiguration.OnGuildMemberRemoved ) enabledEvents.Append( "`OnGuildMemberRemoved` " );
+            if ( profile.LoggingConfiguration.OnMessagesBulkDeleted ) enabledEvents.Append( "`OnMessagesBulkDeleted`" );
+
+            StringBuilder excludedChannels = new StringBuilder();
+
+            var exclusions = profile.LoggingConfiguration.ChannelsExcludedFromLogging;
+            for ( int i = 0; i < exclusions.Count; i++ )
+            {
+                excludedChannels.Append( ctx.Guild.GetChannel( exclusions[i] ).Mention );
+                excludedChannels.Append(' ');
+            }
+
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Server Profile for `{ctx.Guild.Name}`",
@@ -217,7 +241,9 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"Bot instructed to delete response message after erase commands: `{profile.DeleteBotResponseAfterEraseCommands}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n `{reminders}`\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}")
+                    .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {enabledEvents.ToString()}\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {

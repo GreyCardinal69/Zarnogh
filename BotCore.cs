@@ -94,8 +94,6 @@ namespace Zarnogh
             Client.GuildMemberAdded += _guildEventLoggingService.OnGuildMemberAdded;
             Client.GuildBanRemoved += _guildEventLoggingService.OnGuildBanRemoved;
             Client.GuildBanAdded += _guildEventLoggingService.OnGuildBanAdded;
-            Client.GuildRoleCreated += _guildEventLoggingService.OnGuildRoleCreated;
-            Client.GuildRoleUpdated += _guildEventLoggingService.OnGuildRoleUpdated;
             Client.GuildRoleDeleted += _guildEventLoggingService.OnGuildRoleDeleted;
             Client.MessagesBulkDeleted += _guildEventLoggingService.OnMessagesBulkDeleted;
             Client.MessageDeleted += _guildEventLoggingService.OnMessageDeleted;
