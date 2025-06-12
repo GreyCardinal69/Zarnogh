@@ -5,6 +5,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Zarnogh.Configuration;
 using Zarnogh.Modules.Timing;
+using Zarnogh.Other;
 
 namespace Zarnogh.Modules.ServerManagement
 {
@@ -89,6 +90,43 @@ namespace Zarnogh.Modules.ServerManagement
             return;
         }
 
+        [Command( "DisableCustomWelcome" )]
+        [Description( "Disables the custom welcome message for the server." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task DisableCustomWelcome( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            await ctx.RespondAsync( "Custom welcome message disabled." );
+
+            profile.CustomWelcomeMessageEnabled = false;
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+        }
+
+        [Command( "SetCustomWelcome" )]
+        [Description( "Sets a custom welcome message that the bot will execute for new users." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task SetCustomWelcome( CommandContext ctx, string message, ulong roleId, ulong channelId )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            if ( message is null || channelId == 0 )
+            {
+                await ctx.RespondAsync( "Invalid message or channelId." );
+                return;
+            }
+
+            await ctx.RespondAsync( "Custom welcome message set." );
+
+            profile.WelcomeConfiguration = new UserWelcome( message, roleId, channelId );
+            profile.CustomWelcomeMessageEnabled = true;
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+        }
+
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
 
@@ -131,17 +169,36 @@ namespace Zarnogh.Modules.ServerManagement
                 timedReminders.Append( $"{item.Name}: Will go off at: {DateTimeOffset.FromUnixTimeSeconds( item.ExpDate )} / <t:{item.ExpDate}> in Unix.\n\n" );
             }
 
+            UserWelcome joinCfg = profile.WelcomeConfiguration;
+            DiscordRole joinRole;
+
+            try
+            {
+                joinRole = ctx.Guild.GetRole( joinCfg.RoleId );
+            }
+            catch ( NullReferenceException )
+            {
+            }
+
+            string notifications = notificationsChannel == null ? "`NOT SET`" : notificationsChannel.Mention;
+            string reminders = timedReminders.Length > 0 ? timedReminders.ToString() : "None";
+
+            string welcomeRole = joinCfg.RoleId == 0 ? "`Null`" : ctx.Guild.GetRole(joinCfg.RoleId).Mention;
+            string welcomeChannel = ctx.Guild.GetChannel(joinCfg.ChannelId).Mention;
+            string welcomeMsg = profile.CustomWelcomeMessageEnabled ? $"`\"{joinCfg.Content}\"` at {welcomeChannel}, will give the following role: {welcomeRole}." : "Not Set";
+
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Server Profile for `{ctx.Guild.Name}`",
                 Color = DiscordColor.DarkGreen,
                 Description =
                 new StringBuilder()
-                    .Append(CultureInfo.InvariantCulture, $"Bot notifications are sent to: {(notificationsChannel == null ? "`NOT SET`" : notificationsChannel.Mention)}.\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"Bot notifications are sent to: {notifications}.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Server profile created at: `{profile.ProfileCreationDate}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Bot instructed to delete response message after erase commands: `{profile.DeleteBotResponseAfterEraseCommands}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n ```{(timedReminders.Length > 0 ? timedReminders : "None")}```\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n `{reminders}`\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
