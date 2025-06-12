@@ -161,12 +161,56 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnGuildBanAdded( DiscordClient sender, GuildBanAddEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnGuildBanAdded )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                var roles = string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray();
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The banned user was:** {args.Member.Mention}\n\n")
+                    .Append( $"**The user's roles were:** {roles}\n\n")
+                    .Append( $"**The user joined at:** {args.Member.JoinedAt.UtcDateTime}\n\n")
+                    .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Banned Member**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnGuildBanRemoved( DiscordClient sender, GuildBanRemoveEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnGuildBanRemoved )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The unbanned user is:** {args.Member.Mention}\n\n")
+                    .Append( $"**The user joined at:** {args.Member.JoinedAt.UtcDateTime}\n\n")
+                    .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Unbanned Member**\n\n\n",
+                    Color = DiscordColor.Wheat,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnGuildMemberAdded( DiscordClient sender, GuildMemberAddEventArgs args )
@@ -179,6 +223,4 @@ namespace Zarnogh.Modules.Logging
             throw new NotImplementedException();
         }
     }
-
-
 }

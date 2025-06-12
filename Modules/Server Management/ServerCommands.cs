@@ -227,7 +227,7 @@ namespace Zarnogh.Modules.ServerManagement
             for ( int i = 0; i < exclusions.Count; i++ )
             {
                 excludedChannels.Append( ctx.Guild.GetChannel( exclusions[i] ).Mention );
-                excludedChannels.Append(' ');
+                excludedChannels.Append( ' ' );
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
