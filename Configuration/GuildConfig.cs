@@ -14,5 +14,6 @@ namespace Zarnogh.Configuration
         public List<TimedReminder> TimedReminders { get; set; }
         public UserWelcome WelcomeConfiguration { get; set; }
         public bool CustomWelcomeMessageEnabled { get; set; }
+        public ulong EventLoggingChannelId { get; set; }
     }
 }

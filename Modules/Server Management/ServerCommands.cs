@@ -90,6 +90,25 @@ namespace Zarnogh.Modules.ServerManagement
             return;
         }
 
+        [Command( "ListCommandModules" )]
+        [Description( "Responds with the names of all command modules." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
+        public async Task ListCommandModules( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+
+            StringBuilder sb = new StringBuilder();
+
+            for ( int i = 0; i < _moduleManager.LoadedModules.Count; i++ )
+            {
+                sb.Append( $"{_moduleManager.LoadedModules[i].NameOfModule}" );
+                if ( _moduleManager.LoadedModules[i].IsACoreModule ) sb.Append( " (Global)" );
+                if ( i < _moduleManager.LoadedModules.Count - 1 ) sb.Append( ", " );
+            }
+
+            await ctx.Channel.SendMessageAsync( $"Listing all command modules: `{sb.ToString()}`." );
+        }
+
         [Command( "DisableCustomWelcome" )]
         [Description( "Disables the custom welcome message for the server." )]
         [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]

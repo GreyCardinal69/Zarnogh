@@ -7,6 +7,7 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using Zarnogh.Configuration;
 using Zarnogh.Modules;
+using Zarnogh.Modules.Logging;
 using Zarnogh.Services;
 
 namespace Zarnogh
@@ -23,6 +24,7 @@ namespace Zarnogh
         private ZarnoghState _botState;
         private Task _tickLoopTask;
         private CancellationTokenSource _tickLoopCts;
+        private GuildEventLoggingService _guildEventLoggingService;
 
         public event Func<BotCore, DateTimeOffset, Task> TickAsync;
 
@@ -76,6 +78,9 @@ namespace Zarnogh
             _moduleManager = new ModuleManager( _services, _botConfig, _guildConfigManager, _botState );
             _services.AddService( _moduleManager );
 
+            _guildEventLoggingService = new GuildEventLoggingService( _botConfig, _guildConfigManager, _moduleManager, _botState );
+            _services.AddService( _guildEventLoggingService );
+
             await _moduleManager.DiscoverAndLoadModulesAsync();
             _moduleManager.RegisterModuleCommands( CommandsNext );
 
@@ -84,6 +89,22 @@ namespace Zarnogh
 
             CommandsNext.CommandExecuted += OnCommandExecuted;
             CommandsNext.CommandErrored += OnCommandErrored;
+
+            Client.GuildMemberRemoved += _guildEventLoggingService.OnGuildMemberRemoved;
+            Client.GuildMemberAdded += _guildEventLoggingService.OnGuildMemberAdded;
+            Client.GuildBanRemoved += _guildEventLoggingService.OnGuildBanRemoved;
+            Client.GuildBanAdded += _guildEventLoggingService.OnGuildBanAdded;
+            Client.GuildRoleCreated += _guildEventLoggingService.OnGuildRoleCreated;
+            Client.GuildRoleUpdated += _guildEventLoggingService.OnGuildRoleUpdated;
+            Client.GuildRoleDeleted += _guildEventLoggingService.OnGuildRoleDeleted;
+            Client.MessagesBulkDeleted += _guildEventLoggingService.OnMessagesBulkDeleted;
+            Client.MessageDeleted += _guildEventLoggingService.OnMessageDeleted;
+            Client.MessageUpdated += _guildEventLoggingService.OnMessageUpdated;
+            Client.MessageCreated += _guildEventLoggingService.OnMessageCreated;
+            Client.InviteDeleted += _guildEventLoggingService.OnInviteDeleted;
+            Client.InviteCreated += _guildEventLoggingService.OnInviteCreated;
+            Client.ChannelCreated += _guildEventLoggingService.OnChannelCreated;
+            Client.ChannelDeleted += _guildEventLoggingService.OnChannelDeleted;
 
             await Client.ConnectAsync();
             StartTickLoop();
