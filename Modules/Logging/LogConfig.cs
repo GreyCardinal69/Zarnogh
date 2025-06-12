@@ -3,7 +3,6 @@
     public class LogConfig
     {
         public bool OnInviteDeleted { get; set; }
-        public bool OnGuildRoleUpdated { get; set; }
         public bool OnGuildRoleDeleted { get; set; }
         public bool OnMessageDeleted { get; set; }
         public bool OnMessageUpdated { get; set; }
@@ -12,7 +11,6 @@
         public bool OnInviteCreated { get; set; }
         public bool OnMessageCreated { get; set; }
         public bool OnGuildBanAdded { get; set; }
-        public bool OnGuildRoleCreated { get; set; }
         public bool OnGuildBanRemoved { get; set; }
         public bool OnGuildMemberAdded { get; set; }
         public bool OnGuildMemberRemoved { get; set; }

@@ -22,6 +22,32 @@ namespace Zarnogh.Modules.Logging
             _moduleManager = moduleManager;
         }
 
+        public async Task OnInviteCreated( DiscordClient sender, InviteCreateEventArgs args )
+        {
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnInviteCreated )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The invite is**\n{args.Invite}\n\n")
+                    .Append( $"**The invite has:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
+                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Created Invite**\n\n\n",
+                    Color = DiscordColor.Wheat,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
+        }
+
         public async Task OnInviteDeleted( DiscordClient sender, InviteDeleteEventArgs args )
         {
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
@@ -48,14 +74,33 @@ namespace Zarnogh.Modules.Logging
             return;
         }
 
-        public async Task OnGuildRoleUpdated( DiscordClient sender, GuildRoleUpdateEventArgs args )
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task OnGuildRoleDeleted( DiscordClient sender, GuildRoleDeleteEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnGuildRoleDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The role's name was:** {args.Role.Name}\n\n")
+                    .Append( $"**Was the role mentionable?** {args.Role.IsMentionable}\n\n")
+                    .Append( $"**The role's color was:** {args.Role.Color}\n\n")
+                    .Append( $"**The role's id was:** `{args.Role.Id}`\n\n")
+                    .Append( $"**The role was created at:** {args.Role.CreationTimestamp.UtcDateTime}\n\n")
+                    .Append( $"**The role was deleted at:** {DateTime.UtcNow}\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Deleted Member Role**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnMessageDeleted( DiscordClient sender, MessageDeleteEventArgs args )
@@ -76,32 +121,6 @@ namespace Zarnogh.Modules.Logging
         public async Task OnChannelCreated( DiscordClient sender, ChannelCreateEventArgs args )
         {
             throw new NotImplementedException();
-        }
-
-        public async Task OnInviteCreated( DiscordClient sender, InviteCreateEventArgs args )
-        {
-            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
-            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
-
-            if ( profile.LoggingConfiguration.OnInviteDeleted )
-            {
-                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
-
-                StringBuilder sb = new StringBuilder()
-                    .Append( $"**The invite is**\n{args.Invite}\n\n")
-                    .Append( $"**The invite has:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
-                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
-
-                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
-                {
-                    Title = "**Reporting Created Invite**\n\n\n",
-                    Color = DiscordColor.Wheat,
-                    Description = sb.ToString(),
-                    Timestamp = DateTime.Now,
-                };
-                await channel.SendMessageAsync( embed );
-            }
-            return;
         }
 
         public async Task OnMessageCreated( DiscordClient sender, MessageCreateEventArgs args )
@@ -141,11 +160,6 @@ namespace Zarnogh.Modules.Logging
         }
 
         public async Task OnGuildBanAdded( DiscordClient sender, GuildBanAddEventArgs args )
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task OnGuildRoleCreated( DiscordClient sender, GuildRoleCreateEventArgs args )
         {
             throw new NotImplementedException();
         }
