@@ -24,7 +24,28 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnInviteDeleted( DiscordClient sender, InviteDeleteEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnInviteDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The invite was**\n{args.Invite}\n\n")
+                    .Append( $"**The invite had:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
+                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Deleted Invite**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnGuildRoleUpdated( DiscordClient sender, GuildRoleUpdateEventArgs args )
@@ -59,7 +80,28 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnInviteCreated( DiscordClient sender, InviteCreateEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnInviteDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The invite is**\n{args.Invite}\n\n")
+                    .Append( $"**The invite has:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
+                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Created Invite**\n\n\n",
+                    Color = DiscordColor.Wheat,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnMessageCreated( DiscordClient sender, MessageCreateEventArgs args )
