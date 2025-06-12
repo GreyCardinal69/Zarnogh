@@ -4,6 +4,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Zarnogh.Configuration;
 using Zarnogh.Other;
+using Zarnogh.Services;
+using Utilities = Zarnogh.Other.Utilities;
 
 namespace Zarnogh.Modules.Logging
 {
@@ -105,12 +107,136 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnMessageDeleted( DiscordClient sender, MessageDeleteEventArgs args )
         {
-            throw new NotImplementedException();
+            if ( args.Message.Timestamp < _botState.StartUpTime )
+            {
+                return;
+            }
+            if ( args.Message.Author.IsBot )
+            {
+                return;
+            }
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnMessageDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The message was:**\n {args.Message.Content}\n\n")
+                    .Append( $"**The message was deleted at:** {args.Message.Channel.Mention}\n\n")
+                    .Append( $"**The message's author's was:** {args.Message.Author.Mention}\n\n")
+                    .Append( $"**The message's ID was:** `{args.Message.Id}`\n\n")
+                    .Append( $"**The Channel's ID is:** `{args.Channel.Id}`\n\n")
+                    .Append( $"Attaching deleted attachements below:");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Deleted Message**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                    Author = new()
+                    {
+                        IconUrl = args.Message.Author.AvatarUrl,
+                        Name = args.Message.Author.Username
+                    }
+                };
+
+                await channel.SendMessageAsync( embed );
+
+                int z = 0;
+                if ( args.Message.Attachments != null )
+                {
+                    foreach ( var item in args.Message.Attachments )
+                    {
+                        string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\Temp\\image{z}.{GetUrlType(item.Url)}";
+
+                        try
+                        {
+                            using ( HttpClient client = new HttpClient() )
+                            {
+                                byte[] imageBytes = await client.GetByteArrayAsync( item.Url );
+                                await File.WriteAllBytesAsync( savePath, imageBytes );
+                            }
+                        }
+                        catch ( Exception ex )
+                        {
+                            Logger.LogError( $"Error downloading image: {ex.Message}" );
+                        }
+                        z++;
+                    }
+                }
+
+                var saved = Utilities.GetAllFilesFromFolder( @$"{AppDomain.CurrentDomain.BaseDirectory}\Temp\", false );
+
+                foreach ( var item in saved )
+                {
+                    using var fs = new FileStream( item, FileMode.Open, FileAccess.Read );
+                    var msg = await new DiscordMessageBuilder().AddFile( item, fs ).SendAsync( channel );
+                }
+                foreach ( var item in saved )
+                {
+                    File.Delete( item );
+                }
+            }
+            return;
+        }
+
+        private string GetUrlType( string url )
+        {
+            if ( url.Contains( ".jpg" ) || url.Contains( ".jpeg" ) ) return ".jpg";
+            if ( url.Contains( ".mp4" ) ) return ".mp4";
+            if ( url.Contains( ".mp3" ) ) return ".mp3";
+            if ( url.Contains( ".png" ) ) return ".png";
+            if ( url.Contains( ".gif" ) ) return ".gif";
+
+            return ".jpg";
         }
 
         public async Task OnMessageUpdated( DiscordClient sender, MessageUpdateEventArgs args )
         {
-            throw new NotImplementedException();
+            if ( args.Message.Timestamp < _botState.StartUpTime )
+            {
+                return;
+            }
+            if ( args.Message.Author.IsBot )
+            {
+                return;
+            }
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnMessageUpdated )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The old message was:**\n `{args.MessageBefore.Content}`\n\n")
+                    .Append( $"**The new message is:**\n `{args.Message.Content}`\n\n")
+                    .Append( $"**Message updated at:** {args.Channel.Mention}\n\n")
+                    .Append( $"[Message's Jump Link]({args.Message.JumpLink})\n\n")
+                    .Append( $"**The user's ID is:** `{args.Author.Id}`\n")
+                    .Append( $"**The message's ID is:** `{args.Message.Id}`\n")
+                    .Append( $"**The Channel's ID is:** `{args.Channel.Id}`");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Edited Message**\n\n\n",
+                    Color = DiscordColor.Gold,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                    Author = new()
+                    {
+                        IconUrl = args.Message.Author.AvatarUrl,
+                        Name = args.Message.Author.Username
+                    }
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnChannelDeleted( DiscordClient sender, ChannelDeleteEventArgs args )
@@ -231,6 +357,11 @@ namespace Zarnogh.Modules.Logging
                     Color = DiscordColor.Red,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
+                    Author = new()
+                    {
+                        IconUrl = args.Member.AvatarUrl,
+                        Name = args.Member.Username
+                    }
                 };
                 await channel.SendMessageAsync( embed );
             }
@@ -256,6 +387,11 @@ namespace Zarnogh.Modules.Logging
                     Color = DiscordColor.Wheat,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
+                    Author = new()
+                    {
+                        IconUrl = args.Member.AvatarUrl,
+                        Name = args.Member.Username
+                    }
                 };
                 await channel.SendMessageAsync( embed );
             }
