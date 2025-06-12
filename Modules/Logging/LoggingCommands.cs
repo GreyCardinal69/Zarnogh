@@ -24,7 +24,7 @@ namespace Zarnogh.Modules.Logging
         [Command( "SetLoggingChannel" )]
         [Description( "Set's the channel for the bot's event logging messages." )]
         [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
-        public async Task SetNotificationsChannel( CommandContext ctx, ulong Id )
+        public async Task SetLoggingChannel( CommandContext ctx, ulong Id )
         {
             await ctx.TriggerTypingAsync();
 
