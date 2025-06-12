@@ -33,12 +33,12 @@ namespace Zarnogh.Modules.Logging
 
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The invite is**\n{args.Invite}\n\n")
-                    .Append( $"**The invite has:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
-                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
+                    .Append( $"**The invite has:**\n`{args.Invite.MaxUses}` max uses, and `{args.Invite.Uses}` total uses.\n\n")
+                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: `{args.Invite.CreatedAt.UtcDateTime}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = "**Reporting Created Invite**\n\n\n",
+                    Title = "**Reporting On Created Invite**\n\n\n",
                     Color = DiscordColor.Wheat,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
@@ -59,12 +59,12 @@ namespace Zarnogh.Modules.Logging
 
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The invite was**\n{args.Invite}\n\n")
-                    .Append( $"**The invite had:**\n{args.Invite.MaxUses} max uses, and {args.Invite.Uses} total uses.\n\n")
-                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: {args.Invite.CreatedAt.UtcDateTime}\n\n");
+                    .Append( $"**The invite had:**\n`{args.Invite.MaxUses}` max uses, and `{args.Invite.Uses}` total uses.\n\n")
+                    .Append( $"**The invite was created by** {args.Invite.Inviter.Mention} at: `{args.Invite.CreatedAt.UtcDateTime}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = "**Reporting Deleted Invite**\n\n\n",
+                    Title = "**Reporting On Deleted Invite**\n\n\n",
                     Color = DiscordColor.Red,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
@@ -84,16 +84,16 @@ namespace Zarnogh.Modules.Logging
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
 
                 StringBuilder sb = new StringBuilder()
-                    .Append( $"**The role's name was:** {args.Role.Name}\n\n")
-                    .Append( $"**Was the role mentionable?** {args.Role.IsMentionable}\n\n")
-                    .Append( $"**The role's color was:** {args.Role.Color}\n\n")
+                    .Append( $"**The role's name was:** `{args.Role.Name}`\n\n")
+                    .Append( $"**Was the role mentionable?** `{args.Role.IsMentionable}`\n\n")
+                    .Append( $"**The role's color was:** `{args.Role.Color}`\n\n")
                     .Append( $"**The role's id was:** `{args.Role.Id}`\n\n")
-                    .Append( $"**The role was created at:** {args.Role.CreationTimestamp.UtcDateTime}\n\n")
-                    .Append( $"**The role was deleted at:** {DateTime.UtcNow}\n\n");
+                    .Append( $"**The role was created at:** `{args.Role.CreationTimestamp.UtcDateTime}`\n\n")
+                    .Append( $"**The role was deleted at:** `{DateTime.UtcNow}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = "**Reporting Deleted Member Role**\n\n\n",
+                    Title = "**Reporting On Deleted Member Role**\n\n\n",
                     Color = DiscordColor.Red,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
@@ -115,12 +115,62 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnChannelDeleted( DiscordClient sender, ChannelDeleteEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnChannelDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The channel's name was:** `{args.Channel.Name}`\n\n")
+                    .Append( $"**Was the channel marked as nsfw?** `{args.Channel.IsNSFW}`\n\n")
+                    .Append( $"**The channel's type was:** `{args.Channel.Type}`\n\n")
+                    .Append( $"**The channel's topic was:** `{(args.Channel.Topic == null ? "None" : args.Channel.Topic)}`\n\n")
+                    .Append( $"**The channel's category was:** `{args.Channel.Parent.Name}`\n\n")
+                    .Append( $"**The Channel's ID was:** `{args.Channel.Id}`\n\n")
+                    .Append( $"**The channel was created at:** `{args.Channel.CreationTimestamp.UtcDateTime}`");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Deleted Channel**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnChannelCreated( DiscordClient sender, ChannelCreateEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnChannelCreated )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The channel's name is:** `{args.Channel.Name}`\n\n")
+                    .Append( $"**Is the channel marked as nsfw?** `{args.Channel.IsNSFW}`\n\n")
+                    .Append( $"**The channel's type is:** `{args.Channel.Type}`\n\n")
+                    .Append( $"**The channel's topic is:** `{(args.Channel.Topic == null ? "None" : args.Channel.Topic)}`\n\n")
+                    .Append( $"**The channel's category is:** `{args.Channel.Parent.Name}`\n\n")
+                    .Append( $"**The Channel's ID is:** `{args.Channel.Id}`\n\n")
+                    .Append( $"**The channel was created at:** `{args.Channel.CreationTimestamp.UtcDateTime}`");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Created Channel**\n\n\n",
+                    Color = DiscordColor.Wheat,
+                    Description = sb.ToString(),
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnMessageCreated( DiscordClient sender, MessageCreateEventArgs args )
@@ -138,7 +188,7 @@ namespace Zarnogh.Modules.Logging
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = "**Reporting Purged Messages**\n\n\n",
+                    Title = "**Reporting On Purged Messages**\n\n\n",
                     Color = DiscordColor.Red,
                     Description = $"{args.Messages.Count} Messages were deleted in {args.Channel.Mention}.\nAttaching purge archive below.",
                     Timestamp = DateTime.Now,
@@ -168,16 +218,16 @@ namespace Zarnogh.Modules.Logging
             {
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
 
-                var roles = string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray();
+                var roles = new string(string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray());
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The banned user was:** {args.Member.Mention}\n\n")
-                    .Append( $"**The user's roles were:** {roles}\n\n")
-                    .Append( $"**The user joined at:** {args.Member.JoinedAt.UtcDateTime}\n\n")
+                    .Append( $"**The user's roles were:** {(roles == "" ? "`None`" : roles)}\n\n")
+                    .Append( $"**The user joined at:** `{args.Member.JoinedAt.UtcDateTime}`\n\n")
                     .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = "**Reporting Banned Member**\n\n\n",
+                    Title = "**Reporting On Banned Member**\n\n\n",
                     Color = DiscordColor.Red,
                     Description = sb.ToString(),
                     Timestamp = DateTime.Now,
@@ -198,7 +248,6 @@ namespace Zarnogh.Modules.Logging
 
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The unbanned user is:** {args.Member.Mention}\n\n")
-                    .Append( $"**The user joined at:** {args.Member.JoinedAt.UtcDateTime}\n\n")
                     .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
@@ -215,12 +264,65 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnGuildMemberAdded( DiscordClient sender, GuildMemberAddEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnGuildMemberAdded )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The user joined at:** `{args.Member.JoinedAt.UtcDateTime}`\n\n")
+                    .Append( $"**The user's account was created at:** `{args.Member.CreationTimestamp}`\n\n")
+                    .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Joined Member**\n\n\n",
+                    Color = DiscordColor.SpringGreen,
+                    Description = sb.ToString(),
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = args.Member.Username,
+                        IconUrl = args.Member.AvatarUrl
+                    },
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
 
         public async Task OnGuildMemberRemoved( DiscordClient sender, GuildMemberRemoveEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnGuildMemberRemoved )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+
+                var roles = new string(string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray());
+                StringBuilder sb = new StringBuilder()
+                    .Append( $"**The user joined at:** `{args.Member.JoinedAt.UtcDateTime}`\n\n")
+                    .Append( $"**The user's roles were:** {(roles == "" ? "`None`" : roles)}\n\n")
+                    .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
+
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting On Removed Member**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = sb.ToString(),
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = args.Member.Username,
+                        IconUrl = args.Member.AvatarUrl
+                    },
+                    Timestamp = DateTime.Now,
+                };
+                await channel.SendMessageAsync( embed );
+            }
+            return;
         }
     }
 }
