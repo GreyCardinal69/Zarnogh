@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Zarnogh.Configuration;
@@ -119,6 +120,8 @@ namespace Zarnogh.Modules.Logging
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
             if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
 
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( args.Channel.Id ) ) return;
+
             if ( profile.LoggingConfiguration.OnMessageDeleted )
             {
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
@@ -207,6 +210,9 @@ namespace Zarnogh.Modules.Logging
             }
 
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( args.Channel.Id ) ) return;
+
             if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
 
             if ( profile.LoggingConfiguration.OnMessageUpdated )
@@ -301,13 +307,67 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnMessageCreated( DiscordClient sender, MessageCreateEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( !profile.LoggingConfiguration.OnMessageCreated )
+            {
+                return;
+            }
+
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( args.Channel.Id ) ) return;
+
+            if ( args.Message.Content.Contains( _botState.Client.CurrentUser.Mention ) )
+            {
+                CommandContext context = await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id );
+                await context.RespondAsync( $"I am the spiritual inheritor of 14_P4_21, my prefix is: `.`" );
+            }
+
+            if ( args.Author.Id == _botState.Client.CurrentUser.Id || args.Author.Id == _botConfig.OwnerId )
+            {
+                return;
+            }
+
+            DiscordMember user = await args.Guild.GetMemberAsync( args.Message.Author.Id );
+
+            // moderators are allowed to post certain messages that normal members cant.
+            Permissions perms = user.Permissions;
+            if ( perms.HasPermission( Permissions.Administrator ) ||
+                 perms.HasPermission( Permissions.BanMembers ) ||
+                 perms.HasPermission( Permissions.KickMembers ) ||
+                 perms.HasPermission( Permissions.ManageChannels ) ||
+                 perms.HasPermission( Permissions.ManageGuild ) ||
+                 perms.HasPermission( Permissions.ManageMessages ) ||
+                 perms.HasPermission( Permissions.ManageRoles ) ||
+                 perms.HasPermission( Permissions.ManageEmojis ) )
+            {
+                return;
+            }
+
+            foreach ( string link in Constants.ScamLinks )
+            {
+                if ( args.Message.Content.Contains( link ) )
+                {
+                    CommandContext fakeContext = await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id );
+
+                    // TO DO, ISOLATE SCAMMER
+
+                    foreach ( DiscordRole role in user.Roles )
+                    {
+                        await user.RevokeRoleAsync( role );
+                    }
+
+                    await args.Message.DeleteAsync();
+                }
+            }
         }
 
         public async Task OnMessagesBulkDeleted( DiscordClient sender, MessageBulkDeleteEventArgs args )
         {
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
             if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.ChannelsExcludedFromLogging.Contains( args.Channel.Id ) ) return;
 
             if ( profile.LoggingConfiguration.OnMessagesBulkDeleted )
             {
