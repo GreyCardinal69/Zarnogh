@@ -461,6 +461,17 @@ namespace Zarnogh.Modules.Logging
         public async Task OnGuildMemberAdded( DiscordClient sender, GuildMemberAddEventArgs args )
         {
             var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+
+            if ( profile.CustomWelcomeMessageEnabled )
+            {
+                if ( profile.WelcomeConfiguration.RoleId != 0 )
+                {
+                    await args.Member.GrantRoleAsync( args.Guild.GetRole( profile.WelcomeConfiguration.RoleId ) );
+                }
+                DiscordChannel main = args.Guild.GetChannel( profile.WelcomeConfiguration.ChannelId );
+                await main.SendMessageAsync( profile.WelcomeConfiguration.Content.Replace( "MENTION", $"{args.Member.Mention}" ) );
+            }
+
             if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
 
             if ( profile.LoggingConfiguration.OnGuildMemberAdded )
