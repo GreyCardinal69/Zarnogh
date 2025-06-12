@@ -1,6 +1,9 @@
-﻿using DSharpPlus;
+﻿using System.Text;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Zarnogh.Configuration;
+using Zarnogh.Other;
 
 namespace Zarnogh.Modules.Logging
 {
@@ -66,7 +69,33 @@ namespace Zarnogh.Modules.Logging
 
         public async Task OnMessagesBulkDeleted( DiscordClient sender, MessageBulkDeleteEventArgs args )
         {
-            throw new NotImplementedException();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+            if ( !profile.EnabledModules.Contains( "Logging" ) ) return;
+
+            if ( profile.LoggingConfiguration.OnMessagesBulkDeleted )
+            {
+                DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = "**Reporting Purged Messages**\n\n\n",
+                    Color = DiscordColor.Red,
+                    Description = $"{args.Messages.Count} Messages were deleted in {args.Channel.Mention}.\nAttaching purge archive below.",
+                    Timestamp = DateTime.Now,
+                };
+
+                StringBuilder sb = new StringBuilder();
+
+                var path = await HtmlArchiveService.ArchiveInputAsync( await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id ), args.Messages, args.Channel );
+
+                using FileStream fs = new FileStream( path, FileMode.Open, FileAccess.Read );
+
+                DiscordMessage msg = await new DiscordMessageBuilder()
+                            .AddEmbed( embed )
+                            .SendAsync( channel );
+                // Separate message so that the zip file is below the log message.
+                DiscordMessage file = await new DiscordMessageBuilder().AddFile( fs ).SendAsync(channel);
+            }
+            return;
         }
 
         public async Task OnGuildBanAdded( DiscordClient sender, GuildBanAddEventArgs args )
@@ -94,4 +123,6 @@ namespace Zarnogh.Modules.Logging
             throw new NotImplementedException();
         }
     }
+
+
 }
