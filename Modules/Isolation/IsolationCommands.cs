@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.Isolation
@@ -67,6 +68,100 @@ namespace Zarnogh.Modules.Isolation
             profile.IsolationConfiguration.IsolationChannelRolePairs.Add( channelId, roleId );
             await _guildConfigManager.SaveGuildConfigAsync( profile );
             await ctx.RespondAsync( $"An isolation channel-role pair for: {channel.Mention}-{role.Mention} has been added." );
+        }
+
+        [Command( "Isolate" )]
+        [Description( "Isolates a user with specified information." )]
+        [Require​User​Permissions​( DSharpPlus.Permissions.ManageRoles )]
+        public async Task Isolate( CommandContext ctx, ulong userId, string timeLen, bool returnRoles, [RemainingText] string reason )
+        {
+            await ctx.TriggerTypingAsync();
+
+            if ( ctx.Guild.GetMemberAsync( userId ) == null )
+            {
+                await ctx.RespondAsync( "Invalid user id." );
+                return;
+            }
+
+            DiscordMember user = null;
+
+            try
+            {
+                user = await ctx.Guild.GetMemberAsync( userId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid user Id, aborting..." );
+                return;
+            }
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            foreach ( var entry in profile.IsolationConfiguration.ActiveIsolationEntries )
+            {
+                if ( entry.UserId == userId )
+                {
+                    await ctx.RespondAsync( $"The user {user.Mention} is already isolated, aborting..." );
+                    return;
+                }
+            }
+
+            if ( profile.IsolationConfiguration.IsolationChannelRolePairs.Count == 0 )
+            {
+                await ctx.RespondAsync( "No isolation channel-role pairs set, can not isolate, aborting..." );
+                return;
+            }
+
+            if ( user == null )
+            {
+                await ctx.RespondAsync( "Invalid user Id, aborting..." );
+                return;
+            }
+
+            var targetChannelRolePair = profile.IsolationConfiguration.GetFreeOrFirstIsolationPair();
+
+            var now = DateTime.UtcNow;
+            var releaseDate = DateTime.UtcNow;
+
+            // we have timeLen as xd, aka x days.
+            releaseDate = releaseDate.AddDays( Convert.ToInt32( timeLen[0] ) );
+
+            ulong[] userRoles = new ulong[user.Roles.Count()];
+            int i = 0;
+
+            var discordRoles = user.Roles.ToList();
+
+            foreach ( DiscordRole item in discordRoles )
+            {
+                userRoles[i] = item.Id;
+                i++;
+                await user.RevokeRoleAsync( item );
+            }
+
+            IsolationEntry NewEntry = new IsolationEntry()
+            {
+                IsolationChannelId = targetChannelRolePair.Item1,
+                IsolationCreationDate = now,
+                IsolationReleaseDate = releaseDate,
+                IsolationRoleId = targetChannelRolePair.Item2,
+                Reason = reason,
+                ReturnRolesOnRelease = returnRoles,
+                UserId = userId,
+                UserRolesUponIsolation = userRoles
+            };
+
+            profile.IsolationConfiguration.ActiveIsolationEntries.Add( NewEntry );
+
+            await user.GrantRoleAsync( ctx.Guild.GetRole( targetChannelRolePair.Item2 ) );
+
+            var userProfile = profile.UserProfiles[userId];
+            userProfile.IsolationEntries.Add( (now, "") );
+
+            await _guildConfigManager.SaveGuildConfigAsync(profile);
+
+            DiscordChannel isolationChannel = ctx.Guild.GetChannel( targetChannelRolePair.Item1 );
+
+            await ctx.RespondAsync( $"Isolated {user.Mention} at channel: {isolationChannel.Mention}, for {timeLen[0]} days. Removed the following roles: {string.Join( ", ", discordRoles.Select( X => X.Mention ) )}. \nThe user will be released on: `{NewEntry.IsolationReleaseDate}` +- 1-2 minutes. Will the revoked roles be given back on release? `{returnRoles}`." );
         }
     }
 }
