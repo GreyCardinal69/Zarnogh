@@ -330,7 +330,7 @@ namespace Zarnogh.Modules.Logging
 
             DiscordMember user = await args.Guild.GetMemberAsync( args.Message.Author.Id );
 
-            // moderators are allowed to post certain messages that normal members cant.
+            // moderators are allowed to post certain messages that normal members can not.
             Permissions perms = user.Permissions;
             if ( perms.HasPermission( Permissions.Administrator ) ||
                  perms.HasPermission( Permissions.BanMembers ) ||
@@ -350,7 +350,15 @@ namespace Zarnogh.Modules.Logging
                 {
                     CommandContext fakeContext = await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id );
 
-                    // TO DO, ISOLATE SCAMMER
+                    // since the isolation command is called by the bot, we don't file it officially ( not included in the bot's user profile )
+                    // isolates at a free or the first isolation channel.
+
+                    var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+                    var isolationPair = profile.IsolationConfiguration.GetFreeOrFirstIsolationPair();
+
+                    await user.GrantRoleAsync( args.Guild.GetRole( isolationPair.Item2 ) );
+                    await fakeContext.RespondAsync( $"Isolated user {user.Mention} at {args.Guild.GetChannel( isolationPair.Item1 ).Mention}. The user's message contained a discord scam link, the link was: `{link}`. " );
+                    await fakeContext.RespondAsync( $"Revoked the following roles from the user: {string.Join( ", ", user.Roles.Select( x => x.Mention ).ToArray() )}." );
 
                     foreach ( DiscordRole role in user.Roles )
                     {
