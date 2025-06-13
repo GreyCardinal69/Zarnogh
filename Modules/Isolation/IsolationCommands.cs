@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Newtonsoft.Json;
 using Zarnogh.Configuration;
 
 namespace Zarnogh.Modules.Isolation
@@ -138,7 +137,7 @@ namespace Zarnogh.Modules.Isolation
                 await user.RevokeRoleAsync( item );
             }
 
-            IsolationEntry NewEntry = new IsolationEntry()
+            IsolationEntry newEntry = new IsolationEntry()
             {
                 IsolationChannelId = targetChannelRolePair.Item1,
                 IsolationCreationDate = now,
@@ -150,18 +149,21 @@ namespace Zarnogh.Modules.Isolation
                 UserRolesUponIsolation = userRoles
             };
 
-            profile.IsolationConfiguration.ActiveIsolationEntries.Add( NewEntry );
+            profile.IsolationConfiguration.ActiveIsolationEntries.Add( newEntry );
+
+            DiscordChannel isolationChannel = ctx.Guild.GetChannel( targetChannelRolePair.Item1 );
 
             await user.GrantRoleAsync( ctx.Guild.GetRole( targetChannelRolePair.Item2 ) );
 
             var userProfile = profile.UserProfiles[userId];
-            userProfile.IsolationEntries.Add( (now, "") );
 
-            await _guildConfigManager.SaveGuildConfigAsync(profile);
+            var wereRolesReturn = returnRoles ? "the user's roles were given back upon release" : "the user's roles were not given back upon release";
+            userProfile.IsolationEntries.Add( (now, $"For the following reason: `{newEntry.Reason}`, for `{timeLen[0]}` days, at {isolationChannel.Mention}, {wereRolesReturn}, isolated by {ctx.User.Mention}.") );
 
-            DiscordChannel isolationChannel = ctx.Guild.GetChannel( targetChannelRolePair.Item1 );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
 
-            await ctx.RespondAsync( $"Isolated {user.Mention} at channel: {isolationChannel.Mention}, for {timeLen[0]} days. Removed the following roles: {string.Join( ", ", discordRoles.Select( X => X.Mention ) )}. \nThe user will be released on: `{NewEntry.IsolationReleaseDate}` +- 1-2 minutes. Will the revoked roles be given back on release? `{returnRoles}`." );
+            var rolesStr = string.Join( ", ", discordRoles.Select( X => X.Mention ) );
+            await ctx.RespondAsync( $"Isolated {user.Mention} at channel: {isolationChannel.Mention}, for `{timeLen[0]}` days. Removed the following roles: {rolesStr}. \nThe user will be released on: `{newEntry.IsolationReleaseDate}` +- 1-2 minutes. Will the revoked roles be given back on release? `{returnRoles}`." );
         }
     }
 }

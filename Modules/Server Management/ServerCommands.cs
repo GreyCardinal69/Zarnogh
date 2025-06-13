@@ -205,14 +205,14 @@ namespace Zarnogh.Modules.ServerManagement
             StringBuilder userNotes = new StringBuilder();
             foreach ( var note in user.Notes )
             {
-                userNotes.Append( $"{note.Key}: `{note.Value}`\n" );
+                userNotes.Append( $"**{note.Key}**: `{note.Value}`\n" );
             }
 
             int a = 1;
             StringBuilder userBans = new StringBuilder();
             foreach ( var note in user.BanEntries )
             {
-                userBans.Append( $"{a}: The user was banned at: `{note.Item1}`. {note.Item2}\n" );
+                userBans.Append( $"**{a}**: The user was banned at: `{note.Item1}`. {note.Item2}\n" );
                 a++;
             }
 
@@ -220,7 +220,15 @@ namespace Zarnogh.Modules.ServerManagement
             StringBuilder userKicks = new StringBuilder();
             foreach ( var note in user.KickEntries )
             {
-                userKicks.Append( $"{a}: The user was kicked at: `{note.Item1}`. {note.Item2}\n" );
+                userKicks.Append( $"**{a}**: The user was kicked at: `{note.Item1}`. {note.Item2}\n" );
+                a++;
+            }
+
+            a = 1;
+            StringBuilder userIsolations = new StringBuilder();
+            foreach ( var note in user.IsolationEntries )
+            {
+                userIsolations.Append( $"**{a}**: The user was isolated at: `{note.Item1}`. {note.Item2}\n" );
                 a++;
             }
 
@@ -233,7 +241,7 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append( $"The user's ID is: `{user.ID}`.\n")
                     .Append( $"The user's creation date is: `{user.CreationDate}`.\n\n")
                     .Append( $"The user has the following notes about him recorded:\n {(userNotes.Length == 0 ? "`None`" : userNotes)}\n")
-                    .Append( $"The user has the following Isolation records: {1}.\n\n") // TO DO
+                    .Append( $"The user has the following Isolation records:\n {(userIsolations.Length == 0 ? "None" : userIsolations)}\n\n")
                     .Append( $"The user has the following Ban records:\n {(userBans.Length == 0 ? "`None`" : userBans)}\n\n")
                     .Append( $"The user has the following Kick records:\n {(userKicks.Length == 0 ? "`None`" : userKicks)}\n\n")
                     .ToString(),
