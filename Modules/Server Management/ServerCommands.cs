@@ -398,6 +398,16 @@ namespace Zarnogh.Modules.ServerManagement
 
             string logNotifs = profile.EnabledModules.Contains("Logging") ? ctx.Guild.GetChannel(profile.EventLoggingChannelId).Mention : "`Logging Module not enabled`";
 
+            int activeIsolations = profile.IsolationConfiguration.ActiveIsolationEntries.Count;
+
+            int a = 1;
+            StringBuilder isolationPairs = new StringBuilder();
+            foreach ( var pair in profile.IsolationConfiguration.IsolationChannelRolePairs )
+            {
+                isolationPairs.Append( $"**{a}**: {ctx.Guild.GetChannel( pair.Key ).Mention} - {ctx.Guild.GetRole( pair.Value ).Mention}\n" );
+                a++;
+            }
+
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Server Profile for `{ctx.Guild.Name}`",
@@ -413,7 +423,9 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {enabledEvents.ToString()}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"The server has `{profile.UserProfiles.Count}` user profiles registered, current member count is: `{ctx.Guild.MemberCount}`.")
+                    .Append(CultureInfo.InvariantCulture, $"The server has `{profile.UserProfiles.Count}` user profiles registered, current member count is: `{ctx.Guild.MemberCount}`.\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has the following isolation Channel-Role pairs:\n {(isolationPairs.Length == 0 ? "`None`" : isolationPairs)}\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has `{activeIsolations}` active isolation entries.")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
