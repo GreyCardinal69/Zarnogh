@@ -146,6 +146,34 @@ namespace Zarnogh.Modules.ServerManagement
             await _guildConfigManager.SaveGuildConfigAsync( profile );
         }
 
+        [Command( "CreateUserProfiles" )]
+        [Description( "Creates user profiles for all the users in the server, who don't already have a registered profile." )]
+
+        [RequireUserPermissions( DSharpPlus.Permissions.ModerateMembers )]
+        public async Task CreateUserProfiles( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var users = await ctx.Guild.GetAllMembersAsync();
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id);
+
+            int n = 0;
+
+            await ctx.Channel.SendMessageAsync( "This process will take a long time, especially for large guilds." );
+            var msg = await ctx.Channel.SendMessageAsync("Generating user profile for: ");
+
+            foreach ( var user in users )
+            {
+                if ( profile.UserProfileExists( user.Id ) ) continue;
+                profile.AddUserProfile( user );
+                n++;
+                await msg.ModifyAsync( $"Generating user profile for: {user.Mention}." );
+            }
+
+            await ctx.RespondAsync( $"Generated user profiles for `{n}` new users." );
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+        }
+
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
 
@@ -230,13 +258,16 @@ namespace Zarnogh.Modules.ServerManagement
                 excludedChannels.Append( ' ' );
             }
 
+            string logNotifs = profile.EnabledModules.Contains("Logging") ? ctx.Guild.GetChannel(profile.EventLoggingChannelId).Mention : "`Logging Module not enabled`";
+
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Server Profile for `{ctx.Guild.Name}`",
-                Color = DiscordColor.DarkGreen,
+                Color = Constants.ZarnoghPink,
                 Description =
                 new StringBuilder()
                     .Append(CultureInfo.InvariantCulture, $"Bot notifications are sent to: {notifications}.\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"Bot server event logs are sent to: {logNotifs}.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Server profile created at: `{profile.ProfileCreationDate}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Bot instructed to delete response message after erase commands: `{profile.DeleteBotResponseAfterEraseCommands}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
@@ -252,9 +283,7 @@ namespace Zarnogh.Modules.ServerManagement
                 Timestamp = DateTime.Now
             };
 
-            embed = embed.WithThumbnail( ctx.Guild.IconUrl );
-
-            await ctx.RespondAsync( embed );
+            await ctx.RespondAsync( embed.WithThumbnail( ctx.Guild.IconUrl ) );
         }
     }
 }

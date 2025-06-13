@@ -1,4 +1,5 @@
-﻿using Zarnogh.Modules.Logging;
+﻿using DSharpPlus.Entities;
+using Zarnogh.Modules.Logging;
 using Zarnogh.Modules.Timing;
 using Zarnogh.Other;
 
@@ -17,5 +18,24 @@ namespace Zarnogh.Configuration
         public bool CustomWelcomeMessageEnabled { get; set; }
         public ulong EventLoggingChannelId { get; set; }
         public LogConfig LoggingConfiguration { get; set; }
+        public List<UserProfile> UserProfiles { get; set; }
+
+        public void AddUserProfile( DiscordUser user )
+        {
+            if ( UserProfileExists( user.Id ) ) return;
+
+            UserProfile profile = new UserProfile(user.Id, user.CreationTimestamp);
+            UserProfiles.Add( profile );
+        }
+
+        public bool UserProfileExists( ulong id )
+        {
+            if ( UserProfiles.Count == 0 ) return false;
+            foreach ( var profile in UserProfiles )
+            {
+                if ( profile.ID == id ) return true;
+            }
+            return false;
+        }
     }
 }

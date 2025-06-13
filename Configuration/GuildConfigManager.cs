@@ -84,6 +84,8 @@ namespace Zarnogh.Configuration
                 TimedReminders = new()
             };
 
+            _guildConfigurations.TryAdd( guildId, newConfig );
+
             messageBuilder = new ColorableMessageBuilder( Console.ForegroundColor )
                         .Append( "Created a new guild config file for guild: [" )
                         .AppendHighlight( $"{newConfig.GuildName}", ConsoleColor.Cyan )
