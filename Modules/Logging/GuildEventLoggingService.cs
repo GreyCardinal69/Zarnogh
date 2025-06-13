@@ -348,12 +348,12 @@ namespace Zarnogh.Modules.Logging
             {
                 if ( args.Message.Content.Contains( link ) )
                 {
-                    CommandContext fakeContext = await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id );
+                    var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
+                    CommandContext fakeContext = await _botState.CreateNewCommandContext( args.Guild.Id, profile.BotNotificationsChannel );
 
                     // since the isolation command is called by the bot, we don't file it officially ( not included in the bot's user profile )
                     // isolates at a free or the first isolation channel.
 
-                    var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
                     var isolationPair = profile.IsolationConfiguration.GetFreeOrFirstIsolationPair();
 
                     await user.GrantRoleAsync( args.Guild.GetRole( isolationPair.Item2 ) );
