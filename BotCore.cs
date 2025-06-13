@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
@@ -40,7 +41,7 @@ namespace Zarnogh
                 Token = _botConfig.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                MinimumLogLevel = LogLevel.Information,
+                MinimumLogLevel = LogLevel.Critical,
                 Intents = DiscordIntents.All,
             };
 
@@ -115,6 +116,46 @@ namespace Zarnogh
             return;
         }
 
+        private async Task HandleGuildIsolationEntriesAsync()
+        {
+            foreach ( var server in Client.Guilds )
+            {
+                var profile = await _guildConfigManager.GetOrCreateGuildConfig(server.Key);
+                if ( profile.IsolationConfiguration.ActiveIsolationEntries.Count == 0 ) continue;
+                var now = DateTime.UtcNow;
+
+                CommandContext fakeContext = await _botState.CreateNewCommandContext( profile.GuildId, profile.BotNotificationsChannel );
+                for ( int i = 0; i < profile.IsolationConfiguration.ActiveIsolationEntries.Count; i++ )
+                {
+                    var entry = profile.IsolationConfiguration.ActiveIsolationEntries[i];
+                    if ( now > entry.IsolationReleaseDate )
+                    {
+                        await fakeContext.TriggerTypingAsync();
+
+                        DiscordMember user  = await fakeContext.Guild.GetMemberAsync( entry.UserId );
+
+                        await user.RevokeRoleAsync( fakeContext.Guild.GetRole( entry.IsolationRoleId ) );
+
+                        if ( entry.ReturnRolesOnRelease )
+                        {
+                            foreach ( var role in entry.UserRolesUponIsolation )
+                            {
+                                await user.GrantRoleAsync( fakeContext.Guild.GetRole( role ) );
+                            }
+                        }
+
+                        profile.IsolationConfiguration.ActiveIsolationEntries.Remove( entry );
+
+                        var channel = fakeContext.Guild.GetChannel( entry.IsolationChannelId );
+
+                        await fakeContext.Channel.SendMessageAsync( $"Released user: {user.Mention} from isolation at channel: {channel.Mention}. The user was isolated for: `{Convert.ToDouble( ( DateTime.UtcNow - entry.IsolationCreationDate ).TotalDays )}` days." );
+                        await fakeContext.Channel.SendMessageAsync( $"Were the revoked roles returned? `{entry.ReturnRolesOnRelease}`. The user was isolated for: `{entry.Reason}`." );
+                        await _guildConfigManager.SaveGuildConfigAsync( profile );
+                    }
+                }
+            }
+        }
+
         private void StartTickLoop()
         {
             ColorableMessageBuilder msg;
@@ -179,6 +220,8 @@ namespace Zarnogh
                 .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
                 .Append( $"] Tick at {tickTime}." );
             Logger.LogColorableBuilderMessage( msg );
+
+            await HandleGuildIsolationEntriesAsync();
 
             if ( TickAsync != null )
             {

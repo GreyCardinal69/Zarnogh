@@ -350,7 +350,7 @@ namespace Zarnogh.Modules.Logging
                 {
                     var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(args.Guild.Id);
                     CommandContext fakeContext = await _botState.CreateNewCommandContext( args.Guild.Id, profile.BotNotificationsChannel );
-
+                    await fakeContext.TriggerTypingAsync();
                     // since the isolation command is called by the bot, we don't file it officially ( not included in the bot's user profile )
                     // isolates at a free or the first isolation channel.
 
