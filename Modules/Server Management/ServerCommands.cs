@@ -3,6 +3,7 @@ using System.Text;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using Zarnogh.Configuration;
 using Zarnogh.Modules.Timing;
 using Zarnogh.Other;
@@ -220,7 +221,7 @@ namespace Zarnogh.Modules.ServerManagement
                 new StringBuilder()
                     .Append( $"The user's ID is: `{user.ID}`.\n")
                     .Append( $"The user's creation date is: `{user.CreationDate}`.\n\n")
-                    .Append( $"The user has the following notes about him: {(userNotes.Length == 0 ? "`None`" : userNotes)}.\n\n")
+                    .Append( $"The user has the following notes about him recorded:\n {(userNotes.Length == 0 ? "`None`" : userNotes)}\n\n")
                     .Append( $"The user has the following Isolation records: {1}.\n\n") // TO DO
                     .Append( $"The user has the following Ban records: {(userBans.Length == 0 ? "`None`" : userBans)}.\n\n")
                     .Append( $"The user has the following Kick records: {(userKicks.Length == 0 ? "`None`" : userNotes)}.\n\n")
@@ -234,6 +235,62 @@ namespace Zarnogh.Modules.ServerManagement
             };
 
             await ctx.RespondAsync( embed );
+        }
+
+        [Command( "AddUserNote" )]
+        [Description( "Adds a note to the given user's server profile." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ModerateMembers )]
+        public async Task AddUserNote( CommandContext ctx, ulong id, int index, [RemainingText] string note )
+        {
+            await ctx.TriggerTypingAsync();
+
+            if ( await ctx.Guild.GetMemberAsync( id ) == null )
+            {
+                await ctx.RespondAsync( "Invalid User Id." );
+                return;
+            }
+
+            var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+            var userProfile = serverProfile.UserProfiles[id];
+
+            if ( userProfile.Notes.ContainsKey( index ) )
+            {
+                await ctx.RespondAsync( $"A user note with the index `{index}` already exists, aborting..." );
+                return;
+            }
+
+            userProfile.Notes.Add( index, note );
+            await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
+
+            await ctx.RespondAsync( "Note added." );
+        }
+
+        [Command( "RemoveUserNote" )]
+        [Description( "Removes a note from the given user's server profile." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ModerateMembers )]
+        public async Task RemoveUserNote( CommandContext ctx, ulong id, int index )
+        {
+            await ctx.TriggerTypingAsync();
+
+            if ( await ctx.Guild.GetMemberAsync( id ) == null )
+            {
+                await ctx.RespondAsync( "Invalid User Id." );
+                return;
+            }
+
+            var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+            var userProfile = serverProfile.UserProfiles[id];
+
+            if ( !userProfile.Notes.ContainsKey( index ) )
+            {
+                await ctx.RespondAsync( $"A user note with the index `{index}` does not exist, aborting..." );
+                return;
+            }
+
+            userProfile.Notes.Remove( index );
+            await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
+
+            await ctx.RespondAsync( "Note removed." );
         }
 
         [Command( "ServerProfile" )]
