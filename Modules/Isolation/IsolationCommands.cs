@@ -122,8 +122,11 @@ namespace Zarnogh.Modules.Isolation
             var now = DateTime.UtcNow;
             var releaseDate = DateTime.UtcNow;
 
-            // we have timeLen as xd, aka x days.
-            releaseDate = releaseDate.AddDays( Convert.ToInt32( timeLen[0] ) );
+            // we have timeLen as x_d, aka x days.
+
+            string[] time = timeLen.Split('_');
+
+            releaseDate = releaseDate.AddDays( Convert.ToDouble( time[0] ) );
 
             ulong[] userRoles = new ulong[user.Roles.Count()];
             int i = 0;
@@ -158,7 +161,7 @@ namespace Zarnogh.Modules.Isolation
             var userProfile = profile.UserProfiles[userId];
 
             var wereRolesReturn = returnRoles ? "the user's roles were given back upon release" : "the user's roles were not given back upon release";
-            userProfile.IsolationEntries.Add( (now, $"For the following reason: `{newEntry.Reason}`, for `{timeLen[0]}` days, at {isolationChannel.Mention}, {wereRolesReturn}, isolated by {ctx.User.Mention}.") );
+            userProfile.IsolationEntries.Add( (now, $"For the following reason: `{newEntry.Reason}`, for `{time[0]}` days, at {isolationChannel.Mention}, {wereRolesReturn}, isolated by {ctx.User.Mention}.") );
 
             await _guildConfigManager.SaveGuildConfigAsync( profile );
 
