@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Zarnogh.Modules.Isolation;
 using Zarnogh.Modules.Logging;
 using Zarnogh.Modules.Timing;
 using Zarnogh.Other;
@@ -19,6 +20,7 @@ namespace Zarnogh.Configuration
         public ulong EventLoggingChannelId { get; set; }
         public LogConfig LoggingConfiguration { get; set; }
         public Dictionary<ulong, UserProfile> UserProfiles { get; set; }
+        public IsolationConfig IsolationConfiguration { get; set; }
 
         public void AddUserProfile( DiscordUser user )
         {

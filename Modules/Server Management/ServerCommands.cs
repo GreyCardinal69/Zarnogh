@@ -3,7 +3,6 @@ using System.Text;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Newtonsoft.Json;
 using Zarnogh.Configuration;
 using Zarnogh.Modules.Timing;
 using Zarnogh.Other;
