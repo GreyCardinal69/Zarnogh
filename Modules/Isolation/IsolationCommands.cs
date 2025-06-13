@@ -76,12 +76,6 @@ namespace Zarnogh.Modules.Isolation
         {
             await ctx.TriggerTypingAsync();
 
-            if ( ctx.Guild.GetMemberAsync( userId ) == null )
-            {
-                await ctx.RespondAsync( "Invalid user id." );
-                return;
-            }
-
             DiscordMember user = null;
 
             try
@@ -166,7 +160,70 @@ namespace Zarnogh.Modules.Isolation
             await _guildConfigManager.SaveGuildConfigAsync( profile );
 
             var rolesStr = string.Join( ", ", discordRoles.Select( X => X.Mention ) );
-            await ctx.RespondAsync( $"Isolated {user.Mention} at channel: {isolationChannel.Mention}, for `{timeLen[0]}` days. Removed the following roles: {rolesStr}. \nThe user will be released on: `{newEntry.IsolationReleaseDate}` +- 1-2 minutes. Will the revoked roles be given back on release? `{returnRoles}`." );
+            await ctx.RespondAsync( $"Isolated {user.Mention} at channel: {isolationChannel.Mention}, for `{time[0]}` days. Removed the following roles: {rolesStr}. \nThe user will be released on: `{newEntry.IsolationReleaseDate}` +- 1-2 minutes. Will the revoked roles be given back on release? `{returnRoles}`." );
+        }
+
+        [Command( "ReleaseUser" )]
+        [Description( "Releases a user from isolation." )]
+        [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageRoles )]
+        public async Task ReleaseUser( CommandContext ctx, ulong userId )
+        {
+            await ctx.TriggerTypingAsync();
+
+            DiscordMember user = null;
+
+            try
+            {
+                user = await ctx.Guild.GetMemberAsync( userId );
+            }
+            catch ( Exception )
+            {
+                await ctx.RespondAsync( "Invalid user Id, aborting..." );
+                return;
+            }
+
+            if ( user == null )
+            {
+                await ctx.RespondAsync( "Invalid user Id, aborting..." );
+                return;
+            }
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            IsolationEntry isolationEntry = null;
+            foreach ( var entry in profile.IsolationConfiguration.ActiveIsolationEntries )
+            {
+                if ( entry.UserId == userId )
+                {
+                    isolationEntry = entry;
+                    break;
+                }
+            }
+
+            if ( isolationEntry == null )
+            {
+                await ctx.RespondAsync( $"User {user.Mention} is not currently isolated." );
+                return;
+            }
+
+            await user.RevokeRoleAsync( ctx.Guild.GetRole( isolationEntry.IsolationRoleId ) );
+
+            if ( isolationEntry.ReturnRolesOnRelease )
+            {
+                foreach ( var role in isolationEntry.UserRolesUponIsolation )
+                {
+                    await user.GrantRoleAsync( ctx.Guild.GetRole( role ) );
+                }
+            }
+
+            profile.IsolationConfiguration.ActiveIsolationEntries.Remove( isolationEntry );
+
+            var channel = ctx.Guild.GetChannel( isolationEntry.IsolationChannelId );
+
+            await ctx.Channel.SendMessageAsync( $"Released user: {user.Mention} from isolation at channel: {channel.Mention}. The user was isolated for: `{Convert.ToDouble( ( DateTime.UtcNow - isolationEntry.IsolationCreationDate ).TotalDays )}` days." );
+            await ctx.Channel.SendMessageAsync( $"Were the revoked roles returned? `{isolationEntry.ReturnRolesOnRelease}`. The user was isolated for: `{isolationEntry.Reason}`." );
+
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
         }
     }
 }

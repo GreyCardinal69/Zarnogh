@@ -85,6 +85,7 @@ namespace Zarnogh
             _moduleManager.RegisterModuleCommands( CommandsNext );
 
             Client.Ready += OnClientReady;
+            Client.UnknownEvent += OnUnknownEvent;
             Client.GuildAvailable += OnGuildAvailable;
 
             CommandsNext.CommandExecuted += OnCommandExecuted;
@@ -106,6 +107,12 @@ namespace Zarnogh
 
             await Client.ConnectAsync();
             StartTickLoop();
+        }
+
+        private async Task OnUnknownEvent( DiscordClient sender, UnknownEventArgs args )
+        {
+            // Unknown event logs seem useless, just ignore them.
+            return;
         }
 
         private void StartTickLoop()
