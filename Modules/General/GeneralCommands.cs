@@ -94,6 +94,12 @@ namespace Zarnogh.Modules.General
 
             if ( !msg.TimedOut && msg.Result.Author.Id == ctx.User.Id )
             {
+                var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+                var userProfile = serverProfile.UserProfiles[userId];
+
+                userProfile.KickEntries.Add( (DateTime.UtcNow, $"Kicked for reason: `{( reason == "" ? "Not Specified" : reason )}`, by {ctx.User.Mention}.") );
+                await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
+
                 await member.RemoveAsync();
                 await ctx.RespondAsync( $"{member.Mention} has been kicked from the server. Reason: {reason ?? "No reason provided"}." );
             }
@@ -134,6 +140,12 @@ namespace Zarnogh.Modules.General
             if ( !msg.TimedOut && msg.Result.Author.Id == ctx.User.Id )
             {
                 member = await ctx.Guild.GetMemberAsync( userId );
+
+                var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+                var userProfile = serverProfile.UserProfiles[userId];
+
+                userProfile.BanEntries.Add( (DateTime.UtcNow, $"Banned for reason: `{(reason == "" ? "Not Specified" : reason)}`, by {ctx.User.Mention}.") );
+                await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
 
                 await ctx.Guild.BanMemberAsync( userId, deleteAmount, reason );
                 await ctx.RespondAsync( $"Banned {member.Mention}, deleted last {deleteAmount} messages with \"{reason}\" as reason for the ban." );

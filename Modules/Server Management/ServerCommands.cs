@@ -193,7 +193,15 @@ namespace Zarnogh.Modules.ServerManagement
 
             var user = profile.UserProfiles[id];
 
-            var discordUser = await ctx.Guild.GetMemberAsync(id);
+            DiscordMember discordUser = null;
+
+            try
+            {
+                discordUser = await ctx.Guild.GetMemberAsync( id );
+            }
+            catch ( Exception )
+            {
+            }
 
             StringBuilder userNotes = new StringBuilder();
             foreach ( var note in user.Notes )
@@ -201,16 +209,20 @@ namespace Zarnogh.Modules.ServerManagement
                 userNotes.Append( $"{note.Key}: `{note.Value}`\n" );
             }
 
+            int a = 1;
             StringBuilder userBans = new StringBuilder();
             foreach ( var note in user.BanEntries )
             {
-                userBans.Append( $"The user was banned at: `{note.Item1}`. Additional Information:`{note.Item2}`\n" );
+                userBans.Append( $"{a}: The user was banned at: `{note.Item1}`. {note.Item2}\n" );
+                a++;
             }
 
+            a = 1;
             StringBuilder userKicks = new StringBuilder();
-            foreach ( var note in user.BanEntries )
+            foreach ( var note in user.KickEntries )
             {
-                userKicks.Append( $"The user was kicked at: `{note.Item1}`. Additional Information:`{note.Item2}`\n" );
+                userKicks.Append( $"{a}: The user was kicked at: `{note.Item1}`. {note.Item2}\n" );
+                a++;
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
@@ -221,15 +233,15 @@ namespace Zarnogh.Modules.ServerManagement
                 new StringBuilder()
                     .Append( $"The user's ID is: `{user.ID}`.\n")
                     .Append( $"The user's creation date is: `{user.CreationDate}`.\n\n")
-                    .Append( $"The user has the following notes about him recorded:\n {(userNotes.Length == 0 ? "`None`" : userNotes)}\n\n")
+                    .Append( $"The user has the following notes about him recorded:\n {(userNotes.Length == 0 ? "`None`" : userNotes)}\n")
                     .Append( $"The user has the following Isolation records: {1}.\n\n") // TO DO
-                    .Append( $"The user has the following Ban records: {(userBans.Length == 0 ? "`None`" : userBans)}.\n\n")
-                    .Append( $"The user has the following Kick records: {(userKicks.Length == 0 ? "`None`" : userNotes)}.\n\n")
+                    .Append( $"The user has the following Ban records:\n {(userBans.Length == 0 ? "`None`" : userBans)}\n\n")
+                    .Append( $"The user has the following Kick records:\n {(userKicks.Length == 0 ? "`None`" : userKicks)}\n\n")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
-                    IconUrl = discordUser.AvatarUrl,
-                    Name = discordUser.Username
+                    IconUrl = discordUser == null ? "" : discordUser.AvatarUrl,
+                    Name = user.UserName
                 },
                 Timestamp = DateTime.Now
             };
