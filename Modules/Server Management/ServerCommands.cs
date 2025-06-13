@@ -174,11 +174,73 @@ namespace Zarnogh.Modules.ServerManagement
             await _guildConfigManager.SaveGuildConfigAsync( profile );
         }
 
+        [Command( "UserProfile" )]
+        [Description( "Responds with the given user's profile." )]
+
+        [RequireUserPermissions( DSharpPlus.Permissions.ModerateMembers )]
+        public async Task UserProfile( CommandContext ctx, ulong id )
+        {
+            await ctx.TriggerTypingAsync();
+
+            var profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+
+            if ( !profile.UserProfileExists( id ) )
+            {
+                await ctx.RespondAsync( "User profile does not exist, either the id is invalid or the user is not registered, use `CreateUserProfiles` command first." );
+                return;
+            }
+
+            var user = profile.UserProfiles[id];
+
+            var discordUser = await ctx.Guild.GetMemberAsync(id);
+
+            StringBuilder userNotes = new StringBuilder();
+            foreach ( var note in user.Notes )
+            {
+                userNotes.Append( $"{note.Key}: `{note.Value}`\n" );
+            }
+
+            StringBuilder userBans = new StringBuilder();
+            foreach ( var note in user.BanEntries )
+            {
+                userBans.Append( $"The user was banned at: `{note.Item1}`. Additional Information:`{note.Item2}`\n" );
+            }
+
+            StringBuilder userKicks = new StringBuilder();
+            foreach ( var note in user.BanEntries )
+            {
+                userKicks.Append( $"The user was kicked at: `{note.Item1}`. Additional Information:`{note.Item2}`\n" );
+            }
+
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+            {
+                Title = $"User Profile for `{user.UserName}`",
+                Color = Constants.ZarnoghPink,
+                Description =
+                new StringBuilder()
+                    .Append( $"The user's ID is: `{user.ID}`.\n")
+                    .Append( $"The user's creation date is: `{user.CreationDate}`.\n\n")
+                    .Append( $"The user has the following notes about him: {(userNotes.Length == 0 ? "`None`" : userNotes)}.\n\n")
+                    .Append( $"The user has the following Isolation records: {1}.\n\n") // TO DO
+                    .Append( $"The user has the following Ban records: {(userBans.Length == 0 ? "`None`" : userBans)}.\n\n")
+                    .Append( $"The user has the following Kick records: {(userKicks.Length == 0 ? "`None`" : userNotes)}.\n\n")
+                    .ToString(),
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    IconUrl = discordUser.AvatarUrl,
+                    Name = discordUser.Username
+                },
+                Timestamp = DateTime.Now
+            };
+
+            await ctx.RespondAsync( embed );
+        }
+
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
 
         [RequireUserPermissions( DSharpPlus.Permissions.ManageRoles )]
-        public async Task Profile( CommandContext ctx )
+        public async Task ServerProfile( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
 
@@ -274,7 +336,8 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n `{reminders}`\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {enabledEvents.ToString()}\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}")
+                    .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has `{profile.UserProfiles.Count}` user profiles registered, current member count is: `{ctx.Guild.MemberCount}`.")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {

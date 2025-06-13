@@ -18,23 +18,18 @@ namespace Zarnogh.Configuration
         public bool CustomWelcomeMessageEnabled { get; set; }
         public ulong EventLoggingChannelId { get; set; }
         public LogConfig LoggingConfiguration { get; set; }
-        public List<UserProfile> UserProfiles { get; set; }
+        public Dictionary<ulong, UserProfile> UserProfiles { get; set; }
 
         public void AddUserProfile( DiscordUser user )
         {
-            if ( UserProfileExists( user.Id ) ) return;
-
-            UserProfile profile = new UserProfile(user.Id, user.CreationTimestamp);
-            UserProfiles.Add( profile );
+            UserProfile profile = new UserProfile(user.Id, user.CreationTimestamp, user.Username);
+            UserProfiles.TryAdd( user.Id, profile );
         }
 
         public bool UserProfileExists( ulong id )
         {
             if ( UserProfiles.Count == 0 ) return false;
-            foreach ( var profile in UserProfiles )
-            {
-                if ( profile.ID == id ) return true;
-            }
+            if ( UserProfiles.ContainsKey( id ) ) return true;
             return false;
         }
     }
