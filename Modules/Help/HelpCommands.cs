@@ -126,7 +126,7 @@ namespace Zarnogh.Modules.Help
                         .Append($"`{_botConfig.Prefix}ToggleCommandModule <ModuleName>`: Toggles the given command module for the server.\n\n")
                         .Append($"`{_botConfig.Prefix}ListCommandModules`: Responds with the names of all command modules.\n\n")
                         .Append($"`{_botConfig.Prefix}DisableCustomWelcome`: If enabled, disables the custom welcome message for the server.\n\n")
-                        .Append($"`{_botConfig.Prefix}SetCustomWelcome <Message> <ChannelID> <RoleID>`: Sets a custom welcome message that the bot will execute for new users. ")
+                        .Append($"`{_botConfig.Prefix}SetCustomWelcome <Message> <RoleID> <ChannelID>`: Sets a custom welcome message that the bot will execute for new users. ")
                         .Append($"`<Message>` is what the bot will say, you can add `MENTION`, in this case the bot will also mention the new user in its message. ")
                         .Append($"`<ChannelID>` - Where the bot will send the message. `<RoleID>` - Whether the bot will give the user some role. leave as `0` if not required.\n\n")
                         .Append($"`{_botConfig.Prefix}CreateUserProfiles`: Creates user profiles for all the members in the server, the process takes a while.\n\n")

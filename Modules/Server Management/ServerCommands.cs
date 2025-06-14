@@ -158,15 +158,13 @@ namespace Zarnogh.Modules.ServerManagement
 
             int n = 0;
 
-            await ctx.Channel.SendMessageAsync( "This process will take a long time, especially for large guilds." );
-            var msg = await ctx.Channel.SendMessageAsync("Generating user profile for: ");
+            await ctx.Channel.SendMessageAsync( "This process might take a long time, especially for large guilds." );
 
             foreach ( var user in users )
             {
                 if ( profile.UserProfileExists( user.Id ) ) continue;
                 profile.AddUserProfile( user );
                 n++;
-                await msg.ModifyAsync( $"Generating user profile for: {user.Mention}." );
             }
 
             await ctx.RespondAsync( $"Generated user profiles for `{n}` new users." );
@@ -420,7 +418,7 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n `{reminders}`\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {enabledEvents.ToString()}\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {(enabledEvents.Length == 0 ? "`None`" : enabledEvents)}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The server has `{profile.UserProfiles.Count}` user profiles registered, current member count is: `{ctx.Guild.MemberCount}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The server has the following isolation Channel-Role pairs:\n {(isolationPairs.Length == 0 ? "`None`" : isolationPairs)}\n")
