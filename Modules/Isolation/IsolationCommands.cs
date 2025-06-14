@@ -22,7 +22,8 @@ namespace Zarnogh.Modules.Isolation
 
         [Command( "AddIsolationPair" )]
         [Description( "Adds a channel and an appropriate role for isolation of users in that channel, with that role." )]
-        public async Task PingCommand( CommandContext ctx, ulong channelId, ulong roleId )
+        [Require​User​Permissions​( DSharpPlus.Permissions.ManageRoles )]
+        public async Task AddIsolationPair( CommandContext ctx, ulong channelId, ulong roleId )
         {
             await ctx.TriggerTypingAsync();
 
