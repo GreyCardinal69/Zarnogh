@@ -81,7 +81,20 @@ namespace Zarnogh.Configuration
                 ProfileCreationDate = DateTime.UtcNow,
                 DeleteBotResponseAfterEraseCommands = false,
                 BotNotificationsChannel = 0,
-                TimedReminders = new()
+                TimedReminders = new(),
+                IsolationConfiguration = new()
+                {
+                    IsolationChannelRolePairs = new(),
+                    ActiveIsolationEntries = new(),
+                },
+                CustomWelcomeMessageEnabled = false,
+                EventLoggingChannelId = 0,
+                LoggingConfiguration = new()
+                {
+                    ChannelsExcludedFromLogging = new()
+                },
+                UserProfiles = new(),
+                WelcomeConfiguration = new(),
             };
 
             _guildConfigurations.TryAdd( guildId, newConfig );

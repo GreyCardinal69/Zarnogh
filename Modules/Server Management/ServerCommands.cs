@@ -148,7 +148,6 @@ namespace Zarnogh.Modules.ServerManagement
 
         [Command( "CreateUserProfiles" )]
         [Description( "Creates user profiles for all the users in the server, who don't already have a registered profile." )]
-
         [RequireUserPermissions( DSharpPlus.Permissions.ModerateMembers )]
         public async Task CreateUserProfiles( CommandContext ctx )
         {
