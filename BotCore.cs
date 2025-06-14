@@ -60,7 +60,8 @@ namespace Zarnogh
                 StringPrefixes = [config.Prefix],
                 EnableMentionPrefix = false,
                 EnableDms = true,
-                CaseSensitive = false
+                CaseSensitive = false,
+                EnableDefaultHelp = false,
             };
             CommandsNext = Client.UseCommandsNext( commandsNextConfig );
 

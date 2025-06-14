@@ -320,7 +320,7 @@ namespace Zarnogh.Modules.Logging
             if ( args.Message.Content.Contains( _botState.Client.CurrentUser.Mention ) )
             {
                 CommandContext context = await _botState.CreateNewCommandContext( args.Guild.Id, args.Channel.Id );
-                await context.RespondAsync( $"I am the spiritual inheritor of 14_P4_21, my prefix is: `.`" );
+                await context.RespondAsync( $"I am the spiritual inheritor of 14_P4_21, my prefix is: `{_botConfig.Prefix}`" );
             }
 
             if ( args.Author.Id == _botState.Client.CurrentUser.Id || args.Author.Id == _botConfig.OwnerId )
