@@ -58,37 +58,53 @@ namespace Zarnogh.Modules.Help
             switch ( category.ToLowerInvariant() )
             {
                 case "isolation commands":
-   var isoCommands = new StringBuilder();
-                    isoCommands.AppendLine( "**Manage User Isolations (Timeouts/Mutes)**" ) // Brief section intro
-                               .AppendLine( "These commands help restrict users to designated channels with a temporary role." )
-                               .AppendLine(); // Blank line for spacing
-
-                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}AddIsolationPair <ChannelID> <RoleID>`**" )
-                               .AppendLine( "  Sets up a channel and role to be used for isolating users." )
-                               .AppendLine();
-
-                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}Isolate <User> <Duration> <RestoreRoles> <Reason>`**" )
-                               .AppendLine( "  Isolates a user for a specified time with a given reason." )
-                               .AppendLine( "  *Parameters:*" )
-                               .AppendLine( "    `  • <User>`: User ID or @mention." )
-                               .AppendLine( "    `  • <Duration>`: e.g., `3d` (3 days), `12h` (12 hours), `30m` (30 minutes)." )
-                               .AppendLine( "    `  • <RestoreRoles>`: `true` to return original roles on release, `false` otherwise." )
-                               .AppendLine( "    `  • <Reason>`: Why the user is being isolated." )
-                               .AppendLine();
-
-                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}ReleaseUser <User>`**" )
-                               .AppendLine( "  Manually ends a user's isolation." )
-                               .AppendLine( "  *Parameters:*" )
-                               .AppendLine( "    `  • <User>`: User ID or @mention of the user to release." );
+                    StringBuilder isoCommands = new StringBuilder()
+                        .Append($"`{_botConfig.Prefix}AddIsolationPair <ChannelID> <RoleID>`: ")
+                        .Append($"Adds a channel and an appropriate role for isolation of users in that channel, with that role.\n\n")
+                        .Append($"`{_botConfig.Prefix}Isolate <UserID> <Time> <ReturnRolesOnRelease> <Reason>`: ")
+                        .Append($"Isolates the user at the first free Channel-Role isolation pair, if all are busy isolates at the first pair. ")
+                        .Append($"`<Time>` is given as: `time_d`, where time can be both an integer and a double, f.e `0.5` for half a day. ")
+                        .Append($"`<ReturnRolesOnRelease>` is a boolean, if set to true the bot will return the user's roles before the user was isolated.\n\n")
+                        .Append($"`{_botConfig.Prefix}ReleaseUser <UserID>`: Releases the given user from isolation.");
 
                     embed = new DiscordEmbedBuilder
                     {
                         Title = "Isolation Commands",
-                        Color = DiscordColor.SpringGreen,
+                        Color = Constants.ZarnoghPink,
                         Description = isoCommands.ToString(),
                         Timestamp = DateTime.UtcNow,
                     };
                     await ctx.RespondAsync( embed );
+                    break;
+                case "debug commands":
+                    StringBuilder debugCommands = new StringBuilder()
+                        .Append($"`{_botConfig.Prefix}UpTime`: Responds with the bot's total uptime.\n\n")
+                        .Append($"`{_botConfig.Prefix}ClearConsoleCache`: Clears the bot's console cache.\n\n")
+                        .Append($"`{_botConfig.Prefix}DumpConsole <N>`: Responds with the last `N` lines of the console logs, upper limit of 1000.\n\n")
+                        .Append($"`{_botConfig.Prefix}DumpConsole`: Responds with the last 20 lines of the console logs.\n\n")
+                        .Append($"`{_botConfig.Prefix}Terminate`: Shuts down the bot.\n\n")
+                        .Append($"`{_botConfig.Prefix}SetInternalTickLoopInterval`: Changes the bot's TickLoopIntervalMilliseconds config property.");
+
+                    embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Debug Commands",
+                        Color = Constants.ZarnoghPink,
+                        Description = debugCommands.ToString(),
+                        Timestamp = DateTime.UtcNow,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter()
+                        {
+                            Text = "Debug Commands require owner permissions to execute, except for: `UpTime`."
+                        }
+                    };
+                    await ctx.RespondAsync( embed );
+                    break;
+                case "timed commands":
+                    break;
+                case "server management":
+                    break;
+                case "logging":
+                    break;
+                case "general commands":
                     break;
             }
         }

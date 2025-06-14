@@ -33,7 +33,7 @@ namespace Zarnogh.Modules.Debug
 
         [Command( "ClearConsoleCache" )]
         [Description( "Clears the accumulated cache of the console logs." )]
-        [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
+        [RequireOwner]
         public async Task ClearConsoleCache( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
@@ -43,7 +43,7 @@ namespace Zarnogh.Modules.Debug
 
         [Command( "DumpConsole" )]
         [Description( "Dumps the last N lines of the console." )]
-        [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
+        [RequireOwner]
         public async Task DumpConsole( CommandContext ctx, int n )
         {
             await ctx.TriggerTypingAsync();
@@ -59,7 +59,7 @@ namespace Zarnogh.Modules.Debug
 
         [Command( "DumpConsole" )]
         [Description( "Dumps the last 100 lines of the console." )]
-        [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
+        [RequireOwner]
         public async Task DumpConsole( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
