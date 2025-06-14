@@ -31,6 +31,16 @@ namespace Zarnogh.Modules.Debug
             await ctx.RespondAsync( $"Uptime: {Math.Abs( uptime.Days )} Day(s), {Math.Abs( uptime.Hours )} hour(s), {Math.Abs( uptime.Minutes )} minute(s)." );
         }
 
+        [Command( "ClearConsoleCache" )]
+        [Description( "Clears the accumulated cache of the console logs." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]
+        public async Task ClearConsoleCache( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+            Logger.ClearConsoleCache();
+            await ctx.RespondAsync( "Console cache has been cleared" );
+        }
+
         [Command( "DumpConsole" )]
         [Description( "Dumps the last N lines of the console." )]
         [RequireUserPermissions( DSharpPlus.Permissions.ManageGuild )]

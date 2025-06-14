@@ -28,6 +28,8 @@ namespace Zarnogh.Services
             }
         }
 
+        public static void ClearConsoleCache() => _cachingConsoleWriter.ClearConsoleCache();
+
         public static string GetConsoleLines( CommandContext ctx, int count )
         {
             return $"```\n{string.Join( "", _cachingConsoleWriter.GetLastNLines( count ) )}\n```";

@@ -89,6 +89,8 @@ namespace Zarnogh.Services
             }
         }
 
+        public void ClearConsoleCache() => _cachedLines.Clear();
+
         public IReadOnlyList<string> GetAllLines()
         {
             lock ( _cacheLock )

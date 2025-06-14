@@ -213,9 +213,8 @@ namespace Zarnogh
 
         private async Task OnTickAsync( DateTimeOffset tickTime )
         {
-            ColorableMessageBuilder msg;
-
-            msg = new ColorableMessageBuilder( Console.ForegroundColor )
+            ColorableMessageBuilder msg = 
+            new ColorableMessageBuilder( Console.ForegroundColor )
                 .Append( "[" )
                 .AppendHighlight( "TickLoop", ConsoleColor.DarkMagenta )
                 .Append( $"] Tick at {tickTime}." );
