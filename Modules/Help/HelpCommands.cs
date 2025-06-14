@@ -162,6 +162,30 @@ namespace Zarnogh.Modules.Help
                     await ctx.RespondAsync( embed );
                     break;
                 case "general commands":
+                    StringBuilder generalCommands = new StringBuilder()
+                        .Append($"`{_botConfig.Prefix}Ping`: Gets the WS latency for the current bot client.\n\n")
+                        .Append($"`{_botConfig.Prefix}BotTalk <GuildID> <ChannelID> <ThreadID> <UseThread> <Message>`: Allows to talk as the bot, in the given ")
+                        .Append($"channel or thread of a channel.\n\n")
+                        .Append($"`{_botConfig.Prefix}BotTalkReply <GuildID> <ChannelID> <ThreadID> <UseThread> <MessageID> <Message>`: Allows to talk as the bot, ")
+                        .Append($"in the given channel or thread of a channel, instructs the bot to reply to the given message.\n\n")
+                        .Append($"`{_botConfig.Prefix}Kick <UserId> <Reason>`: Kicks the given user with the given reason, requires confirmation first.\n\n")
+                        .Append($"`{_botConfig.Prefix}Ban <UserId> <CountOfMessagesToDelete> <Reason>`: Bans the given user with the given reason,")
+                        .Append($" with the given amount of messages to delete, requires confirmation first.\n\n")
+                        .Append($"`{_botConfig.Prefix}Unban <UserID>`: Unbans the given user.\n\n")
+                        .Append($"`{_botConfig.Prefix}SetStatus <Type> <StatusMessage>`: Sets the bots status, requires owner permissions.\n\n")
+                        .Append($"`{_botConfig.Prefix}Erase <Amount>`: Deletes `<Amount>` of messages in the channel.\n\n")
+                        .Append($"`{_botConfig.Prefix}EraseFromTo <FromID> <ToID>`: Deletes messages within a specified range, defined by a start and end message IDs (both inclusive).\n\n")
+                        .Append($"`{_botConfig.Prefix}EraseAggressive <Amount>`: Deletes `<Amount>` of messages in the channel, used for the deletion of messages ")
+                        .Append($"older than 2 weeks.\n\n");
+
+                    embed = new DiscordEmbedBuilder
+                    {
+                        Title = "General Commands",
+                        Color = Constants.ZarnoghPink,
+                        Description = generalCommands.ToString(),
+                        Timestamp = DateTime.UtcNow,
+                    };
+                    await ctx.RespondAsync( embed );
                     break;
             }
         }
