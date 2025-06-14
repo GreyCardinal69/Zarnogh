@@ -64,6 +64,36 @@ namespace Zarnogh.Modules.General
             }
         }
 
+        [Command( "BotTalkReply" )]
+        [Description( "Command for talking as the bot, replies to a message." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task BotTalk( CommandContext ctx, ulong guildId, ulong channelId, ulong threadId, bool thread, ulong msgId, params string[] rest )
+        {
+            await ctx.TriggerTypingAsync();
+            CommandContext fakeContext = await _botState.CreateNewCommandContext( guildId, channelId );
+
+            if ( !thread )
+            {
+                DiscordMessage msg = await fakeContext.Channel.GetMessageAsync( msgId);
+                await msg.RespondAsync( string.Join( " ", rest ) );
+            }
+            else
+            {
+                DiscordChannel channel = fakeContext.Guild.GetChannel( channelId );
+
+                if ( channel == null )
+                {
+                    await ctx.RespondAsync( "Invalid thread ID." );
+                    return;
+                }
+
+                foreach ( DiscordThreadChannel item in channel.Threads )
+                {
+                    if ( item.Id == threadId ) await fakeContext.RespondAsync( string.Join( " ", rest ) );
+                }
+            }
+        }
+
         [Command( "Kick" )]
         [Description( "Kicks a user from the server, with an optional reason." )]
         [RequireUserPermissions( DSharpPlus.Permissions.KickMembers )]
