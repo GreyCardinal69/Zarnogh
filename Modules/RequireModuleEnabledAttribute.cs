@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace Zarnogh.Modules
 {
-    public class RequireModuleEnabledAttribute : CheckBaseAttribute
+    public sealed class RequireModuleEnabledAttribute : CheckBaseAttribute
     {
         public string ModuleName { get; }
 

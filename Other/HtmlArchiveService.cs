@@ -195,7 +195,8 @@ namespace Zarnogh.Other
             if ( string.IsNullOrWhiteSpace( url ) ) return;
             try
             {
-                byte[] fileBytes = await _httpClient.GetByteArrayAsync(url);
+                Uri uri = new Uri( url );
+                byte[] fileBytes = await _httpClient.GetByteArrayAsync(uri);
                 await File.WriteAllBytesAsync( outputPath, fileBytes );
             }
             catch ( HttpRequestException ex )

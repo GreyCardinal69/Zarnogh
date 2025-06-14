@@ -310,7 +310,7 @@ namespace Zarnogh
             }
             if ( _tickLoopCts != null )
             {
-                _tickLoopCts.Cancel();
+                await _tickLoopCts.CancelAsync();
                 _tickLoopCts.Dispose();
             }
             Environment.Exit( 0 );

@@ -415,7 +415,7 @@ namespace Zarnogh.Modules.Logging
                 var roles = new string(string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray());
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The banned user was:** {args.Member.Mention}\n\n")
-                    .Append( $"**The user's roles were:** {(roles == "" ? "`None`" : roles)}\n\n")
+                    .Append( $"**The user's roles were:** {(string.IsNullOrEmpty( roles ) ? "`None`" : roles)}\n\n")
                     .Append( $"**The user joined at:** `{args.Member.JoinedAt.UtcDateTime}`\n\n")
                     .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
 
@@ -520,7 +520,7 @@ namespace Zarnogh.Modules.Logging
                 var roles = new string(string.Join( ", ", args.Member.Roles.Select( X => X.Mention ) ).ToArray());
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The user joined at:** `{args.Member.JoinedAt.UtcDateTime}`\n\n")
-                    .Append( $"**The user's roles were:** {(roles == "" ? "`None`" : roles)}\n\n")
+                    .Append( $"**The user's roles were:** {(string.IsNullOrEmpty(roles) ? "`None`" : roles)}\n\n")
                     .Append( $"**The user's ID is:** `{args.Member.Id}`\n\n");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder

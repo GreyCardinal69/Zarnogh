@@ -97,7 +97,7 @@ namespace Zarnogh.Modules.General
                 var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
                 var userProfile = serverProfile.UserProfiles[userId];
 
-                userProfile.KickEntries.Add( (DateTime.UtcNow, $"Kicked for reason: `{( reason == "" ? "Not Specified" : reason )}`, by {ctx.User.Mention}.") );
+                userProfile.KickEntries.Add( (DateTime.UtcNow, $"Kicked for reason: `{( string.IsNullOrEmpty( reason ) ? "Not Specified" : reason )}`, by {ctx.User.Mention}.") );
                 await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
 
                 await member.RemoveAsync();
@@ -144,7 +144,7 @@ namespace Zarnogh.Modules.General
                 var serverProfile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
                 var userProfile = serverProfile.UserProfiles[userId];
 
-                userProfile.BanEntries.Add( (DateTime.UtcNow, $"Banned for reason: `{( reason == "" ? "Not Specified" : reason )}`, by {ctx.User.Mention}.") );
+                userProfile.BanEntries.Add( (DateTime.UtcNow, $"Banned for reason: `{( string.IsNullOrEmpty( reason ) ? "Not Specified" : reason )}`, by {ctx.User.Mention}.") );
                 await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
 
                 await ctx.Guild.BanMemberAsync( userId, deleteAmount, reason );

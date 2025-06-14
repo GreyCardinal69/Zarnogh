@@ -4,7 +4,7 @@
     {
         public string UserName { get; set; }
         public ulong ID { get; init; }
-        public List<(DateTime, string)> IsolationEntries { get; set; } // TO DO
+        public List<(DateTime, string)> IsolationEntries { get; set; }
         public List<(DateTime, string)> BanEntries { get; set; }
         public List<(DateTime, string)> KickEntries { get; set; }
         public Dictionary<int, string> Notes { get; set; }
