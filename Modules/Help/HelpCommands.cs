@@ -25,7 +25,7 @@ namespace Zarnogh.Modules.Help
         [Command( "Help" )]
         [Description( "Responds with information on available command modules or module commands." )]
         [Require​User​Permissions​Attribute( DSharpPlus.Permissions.ManageMessages )]
-        public async Task HelpCommand( CommandContext ctx, string category = null )
+        public async Task HelpCommand( CommandContext ctx, [RemainingText] string category = null )
         {
             await ctx.TriggerTypingAsync();
             DiscordEmbedBuilder embed;
@@ -49,17 +49,48 @@ namespace Zarnogh.Modules.Help
                     Color = Constants.ZarnoghPink,
                     Description =
                     $"Listing command modules. \n Type `{_botConfig.Prefix}help <module>` to get more info on the specified module. \n\n **Modules**\n{categories.ToString()}\n\nDon't include `(Global)` in your help command.",
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        IconUrl = ctx.Member.AvatarUrl,
-                    },
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                 };
                 await ctx.RespondAsync( embed );
                 return;
             }
 
-            // TO DO COMMAND MODULE HELP
+            switch ( category.ToLowerInvariant() )
+            {
+                case "isolation commands":
+   var isoCommands = new StringBuilder();
+                    isoCommands.AppendLine( "**Manage User Isolations (Timeouts/Mutes)**" ) // Brief section intro
+                               .AppendLine( "These commands help restrict users to designated channels with a temporary role." )
+                               .AppendLine(); // Blank line for spacing
+
+                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}AddIsolationPair <ChannelID> <RoleID>`**" )
+                               .AppendLine( "  Sets up a channel and role to be used for isolating users." )
+                               .AppendLine();
+
+                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}Isolate <User> <Duration> <RestoreRoles> <Reason>`**" )
+                               .AppendLine( "  Isolates a user for a specified time with a given reason." )
+                               .AppendLine( "  *Parameters:*" )
+                               .AppendLine( "    `  • <User>`: User ID or @mention." )
+                               .AppendLine( "    `  • <Duration>`: e.g., `3d` (3 days), `12h` (12 hours), `30m` (30 minutes)." )
+                               .AppendLine( "    `  • <RestoreRoles>`: `true` to return original roles on release, `false` otherwise." )
+                               .AppendLine( "    `  • <Reason>`: Why the user is being isolated." )
+                               .AppendLine();
+
+                    isoCommands.AppendLine( $"**`{_botConfig.Prefix}ReleaseUser <User>`**" )
+                               .AppendLine( "  Manually ends a user's isolation." )
+                               .AppendLine( "  *Parameters:*" )
+                               .AppendLine( "    `  • <User>`: User ID or @mention of the user to release." );
+
+                    embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Isolation Commands",
+                        Color = DiscordColor.SpringGreen,
+                        Description = isoCommands.ToString(),
+                        Timestamp = DateTime.UtcNow,
+                    };
+                    await ctx.RespondAsync( embed );
+                    break;
+            }
         }
     }
 }
