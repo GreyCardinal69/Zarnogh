@@ -99,8 +99,50 @@ namespace Zarnogh.Modules.Help
                     await ctx.RespondAsync( embed );
                     break;
                 case "timed commands":
+                    StringBuilder timedCommands = new StringBuilder()
+                        .Append($"`{_botConfig.Prefix}AddTimedReminder <Name> <Content> <Repeat> <DateType> <Date>`: Adds a timed reminder which goes off at a certain date with an option to repeat. ")
+                        .Append($"You can use `_` for spaces in: `<Name>` and `<Content>`, or do \"...\" instead. There are 3 options for `<Date>`: `-r`, `-t` and `-e`. ")
+                        .Append($"`-r` Adds day-hour-minute amount of time to the current date, in that order and format with numbers. `-t` Works with specific day-hour system, ")
+                        .Append($"hour is 0-23 and for the day insert the first two letters of the day. `-e` Sets a timer for a very specific date in month-day-hour format.")
+                        .Append($"  This type of reminder does not repeat even if told to.\n\n")
+                        .Append($"`{_botConfig.Prefix}ListTimedReminders`: Lists all current registered timed reminders for the server, and their contents.\n\n")
+                        .Append($"`{_botConfig.Prefix}PurgeTimedReminders`: Removes all registered timed reminders for the server.\n\n")
+                        .Append($"`{_botConfig.Prefix}RemoveTimedReminder <Name>`: Removes a registered timed reminder with the given name.\n\n");
+
+                    embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Timed Commands",
+                        Color = Constants.ZarnoghPink,
+                        Description = timedCommands.ToString(),
+                        Timestamp = DateTime.UtcNow,
+                    };
+                    await ctx.RespondAsync( embed );
                     break;
                 case "server management":
+                    StringBuilder serverCommands = new StringBuilder()
+                        .Append($"`{_botConfig.Prefix}ToggleEraseAutoDelete <Bool>`: After the usage of any of the erase commands the bot responds with a message, ")
+                        .Append($"you can instruct the bot to delete that message too after a short while.\n\n")
+                        .Append($"`{_botConfig.Prefix}SetNotificationsChannel <ChannelID>`: Set's the channel for the bot's primary notifications.\n\n")
+                        .Append($"`{_botConfig.Prefix}ToggleCommandModule <ModuleName>`: Toggles the given command module for the server.\n\n")
+                        .Append($"`{_botConfig.Prefix}ListCommandModules`: Responds with the names of all command modules.\n\n")
+                        .Append($"`{_botConfig.Prefix}DisableCustomWelcome`: If enabled, disables the custom welcome message for the server.\n\n")
+                        .Append($"`{_botConfig.Prefix}SetCustomWelcome <Message> <ChannelID> <RoleID>`: Sets a custom welcome message that the bot will execute for new users. ")
+                        .Append($"`<Message>` is what the bot will say, you can add `MENTION`, in this case the bot will also mention the new user in its message. ")
+                        .Append($"`<ChannelID>` - Where the bot will send the message. `<RoleID>` - Whether the bot will give the user some role. leave as `0` if not required.\n\n")
+                        .Append($"`{_botConfig.Prefix}CreateUserProfiles`: Creates user profiles for all the members in the server, the process takes a while.\n\n")
+                        .Append($"`{_botConfig.Prefix}UserProfile <UserID>`: Responds with the given user's profile.\n\n")
+                        .Append($"`{_botConfig.Prefix}AddUserNote <UserId> <NoteIndex> <Note>`: Adds a note to the user's profile. `<Index>` is an integer.\n\n")
+                        .Append($"`{_botConfig.Prefix}RemoveUserNote <UserId> <NoteIndex>`: Removes a note from the user's profile at the given index.\n\n")
+                        .Append($"`{_botConfig.Prefix}ServerProfile`: Responds with the server's profile.\n\n");
+
+                    embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Server Management",
+                        Color = Constants.ZarnoghPink,
+                        Description = serverCommands.ToString(),
+                        Timestamp = DateTime.UtcNow,
+                    };
+                    await ctx.RespondAsync( embed );
                     break;
                 case "logging":
                     break;
