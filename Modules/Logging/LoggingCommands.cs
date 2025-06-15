@@ -75,6 +75,31 @@ namespace Zarnogh.Modules.Logging
             await ctx.RespondAsync( $"Channel {channel.Mention} has been excluded from logging." );
         }
 
+        [Command( "SetLogChannel" )]
+        [Description( "Set's the channel for the bot's log reports." )]
+        [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]
+        public async Task SetLogChannel( CommandContext ctx, ulong Id )
+        {
+            await ctx.TriggerTypingAsync();
+
+            DiscordChannel channel = ctx.Guild.GetChannel( Id );
+
+            if ( channel == null )
+            {
+                await ctx.RespondAsync( "Invalid channel ID, aborting..." );
+                return;
+            }
+
+            GuildConfig profile = await _guildConfigManager.GetOrCreateGuildConfig( ctx.Guild.Id );
+            profile.EventLoggingChannelId = channel.Id;
+
+            var newCtx = await _botState.CreateNewCommandContext(ctx.Guild.Id, channel.Id);
+            await newCtx.RespondAsync( "<Test Notification>" );
+
+            await _guildConfigManager.SaveGuildConfigAsync( profile );
+            await ctx.RespondAsync( $"Bot log report channel set to: {channel.Mention}." );
+        }
+
         [Command( "RemoveLogExclusion" )]
         [Description( "Enables logging for the excluded channel." )]
         [RequireUserPermissions( DSharpPlus.Permissions.Administrator )]

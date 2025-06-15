@@ -147,6 +147,7 @@ namespace Zarnogh.Modules.Help
                 case "logging":
                     StringBuilder loggingCommands = new StringBuilder()
                         .Append($"`{_botConfig.Prefix}AddLogExclusion <ChannelID>`: Instructs the bot to exclude the channel from being logged.\n\n")
+                        .Append($"`{_botConfig.Prefix}SetLogChannel <ChannelID>`: Sets the bot's log events' reports channel.\n\n")
                         .Append($"`{_botConfig.Prefix}RemoveLogExclusion <ChannelID>`: Instructs the bot to resume the logging of the excluded channel.\n\n")
                         .Append($"`{_botConfig.Prefix}ListLogExclusions`: Lists all channels excluded from logging.\n\n")
                         .Append($"`{_botConfig.Prefix}ToggleLogEvents`: Creates a menu allowing for the toggling of events the bot will log for the server.\n\n");
