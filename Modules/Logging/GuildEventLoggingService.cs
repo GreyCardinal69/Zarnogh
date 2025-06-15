@@ -127,13 +127,15 @@ namespace Zarnogh.Modules.Logging
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
                 var content = args.Message.Content;
 
+                var attachmentsMessage = args.Message.Attachments.Count == 0 ? "The message had no attachments." : "Attaching deleted attachments below:";
+
                 StringBuilder sb = new StringBuilder()
                     .Append( $"**The message was:**\n {(string.IsNullOrEmpty(content) ? "`None` (Only Attachment)" : content)}\n\n")
                     .Append( $"**The message was deleted at:** {args.Message.Channel.Mention}\n\n")
                     .Append( $"**The message's author's was:** {args.Message.Author.Mention}\n\n")
                     .Append( $"**The message's ID was:** `{args.Message.Id}`\n\n")
                     .Append( $"**The Channel's ID is:** `{args.Channel.Id}`\n\n")
-                    .Append( $"Attaching deleted attachments below:");
+                    .Append( $"{attachmentsMessage}");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
