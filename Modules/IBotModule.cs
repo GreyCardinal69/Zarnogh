@@ -9,6 +9,6 @@ namespace Zarnogh.Modules
         string ModuleDescription { get; }
         bool IsACoreModule { get; }
         Task InitializeAsync( ServiceProvider services );
-        void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services );
+        void RegisterCommands( ZarnoghState state, ServiceProvider services );
     }
 }

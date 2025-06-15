@@ -14,10 +14,10 @@ namespace Zarnogh.Modules.Debug
             return Task.CompletedTask;
         }
 
-        public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
+        public void RegisterCommands( ZarnoghState state, ServiceProvider services )
         {
-            ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<DebugCommands>();
+            ArgumentNullException.ThrowIfNull( state );
+            state.CommandsNext.RegisterCommands<DebugCommands>();
             Logger.LogMessage( $"Registered DebugCommands Module." );
         }
     }

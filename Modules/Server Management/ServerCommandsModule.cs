@@ -14,10 +14,10 @@ namespace Zarnogh.Modules.ServerManagement
             return Task.CompletedTask;
         }
 
-        public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
+        public void RegisterCommands( ZarnoghState state, ServiceProvider services )
         {
-            ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<ServerCommands>();
+            ArgumentNullException.ThrowIfNull( state );
+            state.CommandsNext.RegisterCommands<ServerCommands>();
             Logger.LogMessage( $"Registered Server Management Module." );
         }
     }

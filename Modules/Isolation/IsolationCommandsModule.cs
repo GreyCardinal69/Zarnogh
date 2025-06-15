@@ -14,10 +14,10 @@ namespace Zarnogh.Modules.Isolation
             return Task.CompletedTask;
         }
 
-        public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
+        public void RegisterCommands( ZarnoghState state, ServiceProvider services )
         {
-            ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<IsolationCommands>();
+            ArgumentNullException.ThrowIfNull( state );
+            state.CommandsNext.RegisterCommands<IsolationCommands>();
             Logger.LogMessage( $"Registered Isolation Commands Module." );
         }
     }

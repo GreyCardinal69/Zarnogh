@@ -14,10 +14,10 @@ namespace Zarnogh.Modules.Logging
             return Task.CompletedTask;
         }
 
-        public void RegisterCommands( CommandsNextExtension commandsNext, ServiceProvider services )
+        public void RegisterCommands( ZarnoghState state, ServiceProvider services )
         {
-            ArgumentNullException.ThrowIfNull( commandsNext );
-            commandsNext.RegisterCommands<LoggingCommands>();
+            ArgumentNullException.ThrowIfNull( state );
+            state.CommandsNext.RegisterCommands<LoggingCommands>();
             Logger.LogMessage( $"Registered Logging Module." );
         }
     }

@@ -5,6 +5,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Zarnogh.Configuration;
 using Zarnogh.Modules;
@@ -65,10 +66,13 @@ namespace Zarnogh
             };
             CommandsNext = Client.UseCommandsNext( commandsNextConfig );
 
+            SlashCommandsExtension slash = Client.UseSlashCommands();
+
             _botState = new ZarnoghState()
             {
                 Client = Client,
                 CommandsNext = CommandsNext,
+                SlashNext = slash,
                 StartUpTime = DateTime.Now,
                 BotCore = this
             };
@@ -84,7 +88,7 @@ namespace Zarnogh
             _services.AddService( _guildEventLoggingService );
 
             await _moduleManager.DiscoverAndLoadModulesAsync();
-            _moduleManager.RegisterModuleCommands( CommandsNext );
+            _moduleManager.RegisterModuleCommands( _botState );
 
             Client.Ready += OnClientReady;
             Client.UnknownEvent += OnUnknownEvent;

@@ -60,12 +60,12 @@ namespace Zarnogh.Modules
             Logger.LogMessage( "Module loading complete." );
         }
 
-        public void RegisterModuleCommands( CommandsNextExtension commandsNext )
+        public void RegisterModuleCommands( ZarnoghState state )
         {
             Logger.LogMessage( "\nAttempting to register commands for loaded modules..." );
             foreach ( var module in _loadedModules )
             {
-                module.RegisterCommands( commandsNext, _services );
+                module.RegisterCommands( state, _services );
                 Logger.LogMessage( $"Registered commands for module: {module.NameOfModule}" );
             }
             Logger.LogMessage( "Finished registering commands for loaded modules.\n" );

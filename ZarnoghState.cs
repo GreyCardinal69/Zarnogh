@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 
 namespace Zarnogh
 {
@@ -9,6 +10,7 @@ namespace Zarnogh
         public DiscordClient Client { get; init; }
         public DateTime StartUpTime { get; init; }
         public CommandsNextExtension CommandsNext { get; init; }
+        public SlashCommandsExtension SlashNext { get; init; }
         public BotCore BotCore { get; init; }
 
         public async Task<CommandContext> CreateNewCommandContext( ulong guildId, ulong channelId = 0 )
