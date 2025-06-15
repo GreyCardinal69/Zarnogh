@@ -131,7 +131,7 @@ namespace Zarnogh.Modules.General
                 await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
 
                 await member.RemoveAsync();
-                await ctx.RespondAsync( $"{member.Mention} has been kicked from the server. Reason: {reason ?? "No reason provided"}." );
+                await ctx.RespondAsync( $"{member.Mention} has been kicked from the server. For the reason: `{reason ?? "No reason provided"}`." );
             }
             else
             {
@@ -178,7 +178,7 @@ namespace Zarnogh.Modules.General
                 await _guildConfigManager.SaveGuildConfigAsync( serverProfile );
 
                 await ctx.Guild.BanMemberAsync( userId, deleteAmount, reason );
-                await ctx.RespondAsync( $"Banned {member.Mention}, deleted last {deleteAmount} messages with \"{reason}\" as reason for the ban." );
+                await ctx.RespondAsync( $"Banned {member.Mention}, deleted last `{deleteAmount}` messages with `{reason}` as the reason for the ban." );
             }
             else
             {

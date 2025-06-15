@@ -237,10 +237,10 @@ namespace Zarnogh.Modules.ServerManagement
                 new StringBuilder()
                     .Append( $"The user's ID is: `{user.ID}`.\n")
                     .Append( $"The user's creation date is: `{user.CreationDate}`.\n\n")
-                    .Append( $"The user has the following notes about him recorded:\n {(userNotes.Length == 0 ? "`None`" : userNotes)}\n\n")
+                    .Append( $"The user has the following moderator notes recorded:\n {(userNotes.Length == 0 ? "`None`\n" : userNotes)}\n")
                     .Append( $"The user has the following Isolation records:\n {(userIsolations.Length == 0 ? "`None`\n" : userIsolations)}\n")
-                    .Append( $"The user has the following Ban records:\n {(userBans.Length == 0 ? "`None`" : userBans)}\n\n")
-                    .Append( $"The user has the following Kick records:\n {(userKicks.Length == 0 ? "`None`" : userKicks)}\n\n")
+                    .Append( $"The user has the following Ban records:\n {(userBans.Length == 0 ? "`None`\n" : userBans)}\n")
+                    .Append( $"The user has the following Kick records:\n {(userKicks.Length == 0 ? "`None`\n" : userKicks)}\n")
                     .ToString(),
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
