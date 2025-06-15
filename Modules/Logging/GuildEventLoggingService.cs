@@ -125,14 +125,15 @@ namespace Zarnogh.Modules.Logging
             if ( profile.LoggingConfiguration.OnMessageDeleted )
             {
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
+                var content = args.Message.Content;
 
                 StringBuilder sb = new StringBuilder()
-                    .Append( $"**The message was:**\n {args.Message.Content}\n\n")
+                    .Append( $"**The message was:**\n {(string.IsNullOrEmpty(content) ? "`None` (Only Attachment)" : content)}\n\n")
                     .Append( $"**The message was deleted at:** {args.Message.Channel.Mention}\n\n")
                     .Append( $"**The message's author's was:** {args.Message.Author.Mention}\n\n")
                     .Append( $"**The message's ID was:** `{args.Message.Id}`\n\n")
                     .Append( $"**The Channel's ID is:** `{args.Channel.Id}`\n\n")
-                    .Append( $"Attaching deleted attachements below:");
+                    .Append( $"Attaching deleted attachments below:");
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
@@ -154,7 +155,7 @@ namespace Zarnogh.Modules.Logging
                 {
                     foreach ( var item in args.Message.Attachments )
                     {
-                        string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\Temp\\image{z}.{GetUrlType(item.Url)}";
+                        string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\Temp\\image{z}{GetUrlType(item.Url)}";
 
                         try
                         {
