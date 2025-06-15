@@ -1,6 +1,6 @@
 ﻿namespace Zarnogh.Services
 {
-    internal class ColorableMessageBuilder
+    internal sealed class ColorableMessageBuilder
     {
         private List<(string text, ConsoleColor color)> _segments = new List<(string text, ConsoleColor color)> ();
         private ConsoleColor _defaultColor;

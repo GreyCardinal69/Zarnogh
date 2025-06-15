@@ -34,7 +34,7 @@ namespace Zarnogh.Modules.Help
 
             for ( int i = 0; i < _moduleManager.LoadedModules.Count; i++ )
             {
-                if ( string.Equals( _moduleManager.LoadedModules[i].NameOfModule, "Help Commands" ) ) continue;
+                if ( string.Equals( _moduleManager.LoadedModules[i].NameOfModule, "Help Commands", StringComparison.Ordinal ) ) continue;
                 categories.Append( $"`{_moduleManager.LoadedModules[i].NameOfModule}" );
                 if ( _moduleManager.LoadedModules[i].IsACoreModule ) categories.Append( " (Global)`" );
                 else categories.Append( '`' );

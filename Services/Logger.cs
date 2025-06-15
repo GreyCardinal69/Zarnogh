@@ -8,7 +8,7 @@ namespace Zarnogh.Services
         private static TextWriter _originalConsoleOut;
         private static readonly object _logLock = new object();
 
-        public static int MaxCachedLines { get; set; } = 1000;
+        public static int MaxCachedLines { get; } = 1000;
 
         static Logger()
         {
