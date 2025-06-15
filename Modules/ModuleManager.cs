@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using DSharpPlus.CommandsNext;
 using Zarnogh.Configuration;
 using Zarnogh.Services;
 
