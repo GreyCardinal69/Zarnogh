@@ -222,8 +222,12 @@ namespace Zarnogh.Modules.Logging
             {
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
 
+                var previous = string.IsNullOrEmpty(args.MessageBefore.Content) && args.MessageBefore.Attachments.Count != 0 ? 
+                    "`Null` (The message was just an attachment)"
+                    : args.MessageBefore.Content;
+
                 StringBuilder sb = new StringBuilder()
-                    .Append( $"**The old message was:**\n {args.MessageBefore.Content}\n\n")
+                    .Append( $"**The old message was:**\n {previous}\n\n")
                     .Append( $"**The new message is:**\n {args.Message.Content}\n\n")
                     .Append( $"**Message updated at:** {args.Channel.Mention}\n\n")
                     .Append( $"[Message's Jump Link]({args.Message.JumpLink})\n\n")
