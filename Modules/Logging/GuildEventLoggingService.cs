@@ -222,7 +222,7 @@ namespace Zarnogh.Modules.Logging
             {
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
 
-                var previous = string.IsNullOrEmpty(args.MessageBefore.Content) && args.MessageBefore.Attachments.Count != 0 ? 
+                var previous = string.IsNullOrEmpty(args.MessageBefore.Content) && args.MessageBefore.Attachments.Count != 0 ?
                     "`Null` (The message was just an attachment)"
                     : args.MessageBefore.Content;
 
