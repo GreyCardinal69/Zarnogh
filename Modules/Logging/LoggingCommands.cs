@@ -237,7 +237,7 @@ namespace Zarnogh.Modules.Logging
 
                 await _guildConfigManager.SaveGuildConfigAsync( profile );
 
-                string responseContent = $"Successfully toggled `{string.Join(", ", toggledEventsDisplay)}` Event.";
+                string responseContent = $"Successfully toggled `{string.Join(", ", toggledEventsDisplay)}` Event(s).";
                 var updatedEmbed = BuildLogSettingsEmbed(ctx.Guild, profile.LoggingConfiguration);
                 var updatedSelectMenu = BuildLogEventSelectMenu(profile.LoggingConfiguration, selectMenuId);
 
