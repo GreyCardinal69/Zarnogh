@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Zarnogh.Services
 {
@@ -8,6 +9,7 @@ namespace Zarnogh.Services
         private readonly List<string> _cachedLines = new List<string>();
         private readonly object _cacheLock = new object();
         private readonly Func<int> _getMaxLines;
+        private readonly string[] _newlineSeparators = new[] { "\r\n", "\r", "\n" };
 
         public CachingTextWriter( TextWriter originalOutput, Func<int> getMaxLinesFunc )
         {
@@ -69,23 +71,49 @@ namespace Zarnogh.Services
             }
         }
 
+        public string GetInternalCache()
+        {
+            return string.Join( "", _cachedLines.ToArray() );
+        }
+
         public IReadOnlyList<string> GetLastNLines( int n )
         {
             lock ( _cacheLock )
             {
-                if ( n <= 0 ) return Array.Empty<string>();
-                int count = Math.Min(n, _cachedLines.Count);
-                return _cachedLines.Skip( _cachedLines.Count - count ).ToList().AsReadOnly();
-            }
-        }
+                if ( n <= 0 || _cachedLines.Count == 0 )
+                {
+                    return Array.Empty<string>();
+                }
 
-        public IReadOnlyList<string> GetFirstNLines( int n )
-        {
-            lock ( _cacheLock )
-            {
-                if ( n <= 0 ) return Array.Empty<string>();
-                int count = Math.Min(n, _cachedLines.Count);
-                return _cachedLines.Take( count ).ToList().AsReadOnly();
+                var reconstructedLines = new LinkedList<string>();
+                int linesStillToFetch = n;
+                string carryFromNewerChunk = "";
+
+                for ( int i = _cachedLines.Count - 1; i >= 0 && linesStillToFetch > 0; i-- )
+                {
+                    string currentChunk = _cachedLines[i];
+                    string textToProcess = currentChunk + carryFromNewerChunk;
+
+                    string[] segments = textToProcess.Split(_newlineSeparators, StringSplitOptions.None);
+                    carryFromNewerChunk = segments[0];
+
+                    for ( int j = segments.Length - 1; j >= 1 && linesStillToFetch > 0; j-- )
+                    {
+                        reconstructedLines.AddFirst( segments[j] );
+                        reconstructedLines.AddFirst( "\n" );
+                        linesStillToFetch--;
+                    }
+                }
+
+                if ( linesStillToFetch > 0 && _cachedLines.Count > 0 )
+                {
+                    if ( !string.IsNullOrEmpty( carryFromNewerChunk ) || reconstructedLines.Count == 0 )
+                    {
+                        reconstructedLines.AddFirst( carryFromNewerChunk );
+                    }
+                }
+
+                return new ReadOnlyCollection<string>( reconstructedLines.ToList() );
             }
         }
 
