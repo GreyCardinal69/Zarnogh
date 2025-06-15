@@ -220,8 +220,8 @@ namespace Zarnogh.Modules.Logging
                 DiscordChannel channel = args.Guild.GetChannel(profile.EventLoggingChannelId);
 
                 StringBuilder sb = new StringBuilder()
-                    .Append( $"**The old message was:**\n `{args.MessageBefore.Content}`\n\n")
-                    .Append( $"**The new message is:**\n `{args.Message.Content}`\n\n")
+                    .Append( $"**The old message was:**\n {args.MessageBefore.Content}\n\n")
+                    .Append( $"**The new message is:**\n {args.Message.Content}\n\n")
                     .Append( $"**Message updated at:** {args.Channel.Mention}\n\n")
                     .Append( $"[Message's Jump Link]({args.Message.JumpLink})\n\n")
                     .Append( $"**The user's ID is:** `{args.Author.Id}`\n")
