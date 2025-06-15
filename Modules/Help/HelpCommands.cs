@@ -84,6 +84,7 @@ namespace Zarnogh.Modules.Help
                         .Append($"`{_botConfig.Prefix}DumpConsole <N>`: Responds with the last `N` lines of the console logs, upper limit of 1000.\n\n")
                         .Append($"`{_botConfig.Prefix}DumpConsole`: Responds with the last 20 lines of the console logs.\n\n")
                         .Append($"`{_botConfig.Prefix}Terminate`: Shuts down the bot.\n\n")
+                        .Append($"`{_botConfig.Prefix}DumpInternalConsoleCache`: Dumps the bot's internal _cachedLines list of the console logs.\n\n")
                         .Append($"`{_botConfig.Prefix}SetInternalTickLoopInterval`: Changes the bot's TickLoopIntervalMilliseconds config property.");
 
                     embed = new DiscordEmbedBuilder
@@ -108,7 +109,6 @@ namespace Zarnogh.Modules.Help
                         .Append($"  This type of reminder does not repeat even if told to.\n\n")
                         .Append($"`{_botConfig.Prefix}ListTimedReminders`: Lists all current registered timed reminders for the server, and their contents.\n\n")
                         .Append($"`{_botConfig.Prefix}PurgeTimedReminders`: Removes all registered timed reminders for the server.\n\n")
-                        .Append($"`{_botConfig.Prefix}DumpInternalConsoleCache`: Dumps the bot's internal _cachedLines list of the console logs.\n\n")
                         .Append($"`{_botConfig.Prefix}RemoveTimedReminder <Name>`: Removes a registered timed reminder with the given name.\n\n");
 
                     embed = new DiscordEmbedBuilder
