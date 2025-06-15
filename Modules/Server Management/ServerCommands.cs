@@ -344,11 +344,13 @@ namespace Zarnogh.Modules.ServerManagement
                 if ( i < _moduleManager.LoadedGlobalModules.Count - 1 ) enabledModules.Append( ", " );
             }
 
+            int a = 1;
             StringBuilder timedReminders = new StringBuilder();
 
             foreach ( TimedReminder item in profile.TimedReminders )
             {
-                timedReminders.Append( $"{item.Name}: Will go off at: {DateTimeOffset.FromUnixTimeSeconds( item.ExpDate )} / <t:{item.ExpDate}> in Unix.\n\n" );
+                timedReminders.Append( $"**{a}**: `\"{item.Name}\" Will go off at: {DateTimeOffset.FromUnixTimeSeconds( item.ExpDate )} / <t:{item.ExpDate}> in Unix.\n`\n" );
+                a++;
             }
 
             UserWelcome joinCfg = profile.WelcomeConfiguration;
@@ -363,7 +365,7 @@ namespace Zarnogh.Modules.ServerManagement
             }
 
             string notifications = notificationsChannel == null ? "`NOT SET`" : notificationsChannel.Mention;
-            string reminders = timedReminders.Length > 0 ? timedReminders.ToString() : "None";
+            string reminders = timedReminders.Length > 0 ? timedReminders.ToString()[..^1] : "None";
 
             string welcomeRole = joinCfg.RoleId == 0 ? "`Null`" : ctx.Guild.GetRole(joinCfg.RoleId).Mention;
             string welcomeChannel = ctx.Guild.GetChannel(joinCfg.ChannelId).Mention;
@@ -397,7 +399,7 @@ namespace Zarnogh.Modules.ServerManagement
 
             int activeIsolations = profile.IsolationConfiguration.ActiveIsolationEntries.Count;
 
-            int a = 1;
+            a = 1;
             StringBuilder isolationPairs = new StringBuilder();
             foreach ( var pair in profile.IsolationConfiguration.IsolationChannelRolePairs )
             {
@@ -416,7 +418,7 @@ namespace Zarnogh.Modules.ServerManagement
                     .Append(CultureInfo.InvariantCulture, $"Server profile created at: `{profile.ProfileCreationDate}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Bot instructed to delete response message after erase commands: `{profile.DeleteBotResponseAfterEraseCommands}`.\n\n")
                     .Append(CultureInfo.InvariantCulture, $"Enabled command modules: `{enabledModules.ToString()}`.\n\n")
-                    .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n `{reminders}`\n\n")
+                    .Append(CultureInfo.InvariantCulture, $"The server has the following Timed Reminders queued:\n {reminders}\n")
                     .Append(CultureInfo.InvariantCulture, $"Custom Welcome Message: {welcomeMsg}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following events are enabled for logging: {(enabledEvents.Length == 0 ? "`None`" : enabledEvents)}\n\n")
                     .Append(CultureInfo.InvariantCulture, $"The following channels are excluded from logging: {(exclusions.Count == 0 ? "`None`" : excludedChannels)}\n\n")

@@ -12,7 +12,7 @@ namespace Zarnogh.Modules.SlashCommands
 {
     internal class SlashCommandsModule : IBotModule
     {
-        public string NameOfModule => "Slash Comands";
+        public string NameOfModule => "Slash Commands";
         public string ModuleDescription => "Provides essential slash commands for the server.";
         public bool IsACoreModule => true;
 
