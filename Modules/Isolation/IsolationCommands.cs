@@ -222,7 +222,7 @@ namespace Zarnogh.Modules.Isolation
             var channel = ctx.Guild.GetChannel( isolationEntry.IsolationChannelId );
 
             await ctx.Channel.SendMessageAsync( $"Released user: {user.Mention} from isolation at channel: {channel.Mention}. The user was isolated for: `{Convert.ToDouble( ( DateTime.UtcNow - isolationEntry.IsolationCreationDate ).TotalDays )}` days." );
-            await ctx.Channel.SendMessageAsync( $"Were the revoked roles returned? `{isolationEntry.ReturnRolesOnRelease}`. The user was isolated for: `{isolationEntry.Reason}`." );
+            await ctx.Channel.SendMessageAsync( $"Were the revoked roles returned? `{isolationEntry.ReturnRolesOnRelease}`. The user was isolated for the following reason: `{isolationEntry.Reason}`." );
 
             await _guildConfigManager.SaveGuildConfigAsync( profile );
         }

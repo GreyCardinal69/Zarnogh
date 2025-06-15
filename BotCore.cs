@@ -154,7 +154,7 @@ namespace Zarnogh
                         var channel = fakeContext.Guild.GetChannel( entry.IsolationChannelId );
 
                         await fakeContext.Channel.SendMessageAsync( $"Released user: {user.Mention} from isolation at channel: {channel.Mention}. The user was isolated for: `{Convert.ToDouble( ( DateTime.UtcNow - entry.IsolationCreationDate ).TotalDays )}` days." );
-                        await fakeContext.Channel.SendMessageAsync( $"Were the revoked roles returned? `{entry.ReturnRolesOnRelease}`. The user was isolated for: `{entry.Reason}`." );
+                        await fakeContext.Channel.SendMessageAsync( $"Were the revoked roles returned? `{entry.ReturnRolesOnRelease}`. The user was isolated for the following reason: `{entry.Reason}`." );
                         await _guildConfigManager.SaveGuildConfigAsync( profile );
                     }
                 }
