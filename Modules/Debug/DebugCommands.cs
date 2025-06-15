@@ -54,7 +54,7 @@ namespace Zarnogh.Modules.Debug
                 n = 1000;
             }
 
-            await ctx.RespondAsync( $"Dumping console...{Logger.GetConsoleLines( ctx, n )}" );
+            await ctx.RespondAsync( $"Dumping console...{Logger.GetConsoleLines( ctx, n + 1 )}" );
         }
 
         [Command( "DumpConsole" )]
@@ -63,7 +63,16 @@ namespace Zarnogh.Modules.Debug
         public async Task DumpConsole( CommandContext ctx )
         {
             await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync( $"No line count specified, dumping the last 20 console lines...{Logger.GetConsoleLines( ctx, 20 )}" );
+            await ctx.RespondAsync( $"No line count specified, dumping the last 20 console lines...{Logger.GetConsoleLines( ctx, 21 )}" );
+        }
+
+        [Command( "DumpInternalConsoleCache" )]
+        [Description( "Dumps the internal cache of the CachingTextWriter." )]
+        [RequireOwner]
+        public async Task DumpInternalConsoleCache( CommandContext ctx )
+        {
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondAsync( $"Dumping all of the internal console cache:\n ```{Logger.GetInternalCache()}```" );
         }
 
         [Command( "Terminate" )]

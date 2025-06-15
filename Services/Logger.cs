@@ -28,6 +28,8 @@ namespace Zarnogh.Services
             }
         }
 
+        public static string GetInternalCache() => _cachingConsoleWriter.GetInternalCache();
+
         public static void ClearConsoleCache() => _cachingConsoleWriter.ClearConsoleCache();
 
         public static string GetConsoleLines( CommandContext ctx, int count )
