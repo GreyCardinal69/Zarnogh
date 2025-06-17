@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.ServerManagement
         public string NameOfModule => "Server Management";
         public string ModuleDescription => "Provides commands for managing the bot's server configuration.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

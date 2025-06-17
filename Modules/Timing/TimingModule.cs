@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.Timing
         public string NameOfModule => "Timed Commands";
         public string ModuleDescription => "Provides commands that work with the bot's internal time tick system.";
         public bool IsACoreModule => false;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

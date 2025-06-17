@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.Isolation
         public string NameOfModule => "Isolation Commands";
         public string ModuleDescription => "Provides commands for the isolation of troublesome users.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

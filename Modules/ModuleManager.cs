@@ -8,6 +8,7 @@ namespace Zarnogh.Modules
     {
         private readonly List<IBotModule> _loadedModules = new List<IBotModule>();
         private readonly List<IBotModule> _loadedGlobalModules = new List<IBotModule>();
+        private readonly List<IBotModule> _loadedServerSpecificModules = new List<IBotModule>();
         private readonly ServiceProvider _services;
         private readonly BotConfig _botConfig;
         private readonly ZarnoghState _botState;
@@ -15,6 +16,7 @@ namespace Zarnogh.Modules
 
         public IReadOnlyList<IBotModule> LoadedModules => _loadedModules.AsReadOnly();
         public IReadOnlyList<IBotModule> LoadedGlobalModules => _loadedGlobalModules.AsReadOnly();
+        public IReadOnlyList<IBotModule> LoadedServerSpecificModules => _loadedServerSpecificModules.AsReadOnly();
 
         public ModuleManager( ServiceProvider services, BotConfig botConfig, GuildConfigManager guildConfigManager, ZarnoghState state )
         {
@@ -38,6 +40,13 @@ namespace Zarnogh.Modules
                 {
                     if ( Activator.CreateInstance( type ) is IBotModule moduleInstance )
                     {
+                        if ( moduleInstance.ServerSpecificModule )
+                        {
+                            _loadedServerSpecificModules.Add( moduleInstance );
+                            await moduleInstance.InitializeAsync( _services );
+                            Logger.LogMessage( $"Loaded module: {moduleInstance.NameOfModule} (Server Specific)." );
+                            continue;
+                        }
                         _loadedModules.Add( moduleInstance );
                         if ( moduleInstance.IsACoreModule || _botConfig.DefaultGlobalModules.Contains( moduleInstance.NameOfModule ) )
                         {
@@ -66,6 +75,11 @@ namespace Zarnogh.Modules
             {
                 module.RegisterCommands( state, _services );
                 Logger.LogMessage( $"Registered commands for module: {module.NameOfModule}" );
+            }
+            foreach ( var module in _loadedServerSpecificModules )
+            {
+                module.RegisterCommands( state, _services );
+                Logger.LogMessage( $"Registered commands for module: {module.NameOfModule} (Server Specific)" );
             }
             Logger.LogMessage( "Finished registering commands for loaded modules.\n" );
         }

@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.Help
         public string NameOfModule => "Help Commands";
         public string ModuleDescription => "Provides commands for information about other bot commands.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

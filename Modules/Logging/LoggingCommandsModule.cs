@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.Logging
         public string NameOfModule => "Logging";
         public string ModuleDescription => "Provides commands for managing internal and server logging.";
         public bool IsACoreModule => false;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

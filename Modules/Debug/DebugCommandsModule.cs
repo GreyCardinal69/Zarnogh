@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.Debug
         public string NameOfModule => "Debug Commands";
         public string ModuleDescription => "Provides utility commands for the remote control and debugging of the bot.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

@@ -7,6 +7,7 @@ namespace Zarnogh.Modules
         string NameOfModule { get; }
         string ModuleDescription { get; }
         bool IsACoreModule { get; }
+        bool ServerSpecificModule { get; }
         Task InitializeAsync( ServiceProvider services );
         void RegisterCommands( ZarnoghState state, ServiceProvider services );
     }

@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.SlashCommands
         public string NameOfModule => "Slash Commands";
         public string ModuleDescription => "Provides essential slash commands for the server.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {

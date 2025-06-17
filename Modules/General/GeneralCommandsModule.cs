@@ -7,6 +7,7 @@ namespace Zarnogh.Modules.General
         public string NameOfModule => "General Commands";
         public string ModuleDescription => "Provides general utility commands.";
         public bool IsACoreModule => true;
+        public bool ServerSpecificModule => false;
 
         public Task InitializeAsync( ServiceProvider services )
         {
