@@ -133,6 +133,7 @@ namespace Zarnogh.Modules.Help
                         .Append($"`<ChannelID>` - Where the bot will send the message. `<RoleID>` - Whether the bot will give the user some role. leave as `0` if not required.\n\n")
                         .Append($"`{_botConfig.Prefix}CreateUserProfiles`: Creates user profiles for all the members in the server, the process takes a while.\n\n")
                         .Append($"`{_botConfig.Prefix}UserProfile <UserID>`: Responds with the given user's profile.\n\n")
+                        .Append($"`{_botConfig.Prefix}ResetCustomWelcome`: Resets the custom welcome message for the server, disabling it.\n\n")
                         .Append($"`{_botConfig.Prefix}AddUserNote <UserId> <NoteIndex> <Note>`: Adds a note to the user's profile. `<Index>` is an integer.\n\n")
                         .Append($"`{_botConfig.Prefix}RemoveUserNote <UserId> <NoteIndex>`: Removes a note from the user's profile at the given index.\n\n")
                         .Append($"`{_botConfig.Prefix}ServerProfile`: Responds with the server's profile.\n\n");

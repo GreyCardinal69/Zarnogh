@@ -309,6 +309,24 @@ namespace Zarnogh.Modules.ServerManagement
             await ctx.RespondAsync( "Note removed." );
         }
 
+        [Command("ResetCustomWelcome")]
+        [Description("Resets Custom Welcome for the server.")]
+
+        [RequireUserPermissions(DSharpPlus.Permissions.ManageRoles)]
+        public async Task DeleteCustomWelcome(CommandContext ctx)
+        {
+            await ctx.TriggerTypingAsync();
+
+            GuildConfig profile = await _guildConfigManager.GetOrCreateGuildConfig(ctx.Guild.Id);
+
+            profile.CustomWelcomeMessageEnabled = false;
+            profile.WelcomeConfiguration = new();
+
+            await _guildConfigManager.SaveGuildConfigAsync(profile);
+
+            await ctx.RespondAsync("Custom Welcome message disabled and reset.");
+        }
+
         [Command( "ServerProfile" )]
         [Description( "Responds with the server's configuration (profile)." )]
 
@@ -354,6 +372,7 @@ namespace Zarnogh.Modules.ServerManagement
             }
 
             UserWelcome joinCfg = profile.WelcomeConfiguration;
+            
             DiscordRole joinRole;
 
             try
@@ -367,9 +386,20 @@ namespace Zarnogh.Modules.ServerManagement
             string notifications = notificationsChannel == null ? "`NOT SET`" : notificationsChannel.Mention;
             string reminders = timedReminders.Length > 0 ? timedReminders.ToString()[..^1] : "None";
 
-            string welcomeRole = joinCfg.RoleId == 0 ? "`Null`" : ctx.Guild.GetRole(joinCfg.RoleId).Mention;
-            string welcomeChannel = ctx.Guild.GetChannel(joinCfg.ChannelId).Mention;
-            string welcomeMsg = profile.CustomWelcomeMessageEnabled ? $"`\"{joinCfg.Content}\"` at {welcomeChannel}, will give the following role: {welcomeRole}." : "Not Set";
+            string welcomeRole = "`Null`";
+            string welcomeChannel =  "`Not Set`";
+            string welcomeMsg = "`Not Set`";
+
+            try
+            {
+                // stupid hack, for now.
+                welcomeRole = ctx.Guild.GetRole(joinCfg.RoleId).Mention;
+                welcomeChannel = ctx.Guild.GetChannel(joinCfg.ChannelId).Mention;
+                welcomeMsg = $"`\"{joinCfg.Content}\"` at {welcomeChannel}, will give the following role: {welcomeRole}.";
+            }
+            catch (Exception)
+            {
+            }
 
             StringBuilder enabledEvents = new StringBuilder();
             if ( profile.LoggingConfiguration.OnInviteDeleted ) enabledEvents.Append( "`OnInviteDeleted` " );
